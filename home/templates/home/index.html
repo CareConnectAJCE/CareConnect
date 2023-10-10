@@ -1,0 +1,119 @@
+{% extends 'home/layout.html' %}
+{% load static %}
+
+{% block content %}
+    <section class="banner_part">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-5 col-xl-5">
+                    <div class="banner_text">
+                        <div class="banner_text_iner">
+                            <h5>We are here for your care</h5>
+                            <h1>Best Care & Better Health</h1>
+                            <a href="#" class="btn_2">Talk to our Bot Expert</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="banner_img">
+                        <img src="{% static 'home/img/banner_img.png' %}" alt="banner" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about_us padding_top">
+        <div class="container">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-md-6 col-lg-6">
+                    <div class="about_us_img">
+                        <img src="{% static 'home/img/top_service.png' %}" alt="top_service" />
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-5">
+                    <div class="about_us_text">
+                        <h2>About us</h2>
+                        <p>
+                            At its core, CareConnect is a chatbot AI designed to facilitate meaningful conversations with patients. Unlike traditional chatbots, CareConnect is programmed to be sympathetic and understanding, creating a safe and supportive environment for patients to discuss their health concerns, symptoms, and experiences. Through these conversations, CareConnect gathers crucial information about the patient's condition, medical history, and preferences.
+                        </p>
+                        <a class="btn_2" href="{% url 'about' %}">learn more</a>
+                        <div class="banner_item">
+                            <div class="single_item">
+                                <img src="{% static 'home/img/icon/banner_1.svg' %}" alt="icon_1" />
+                                <h5>Emergency</h5>
+                            </div>
+                            <div class="single_item">
+                                <img src="{% static 'home/img/icon/banner_2.svg' %}" alt="icon_2" />
+                                <h5>Appointment</h5>
+                            </div>
+                            <div class="single_item">
+                                <img src="{% static 'home/img/icon/banner_3.svg' %}" alt="icon_3" />
+                                <h5>Qualified</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="feature_part">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-8">
+                    <div class="section_tittle text-center">
+                        <h2>Our services</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-between align-items-center">
+                <div class="col-lg-3 col-sm-12">
+                    <div class="single_feature">
+                        <div class="single_feature_part">
+                            <span class="single_feature_icon">
+                                <img src="{% static 'home/img/icon/4.svg' %}" alt="icon_4" />
+                            </span>
+                            <h4>Doctor Interaction</h4>
+                            <p>We help you to have a normal convo with our bot which would make you feel like talking to a doctor</p>
+                        </div>
+                    </div>
+                    <div class="single_feature">
+                        <div class="single_feature_part">
+                            <span class="single_feature_icon">
+                                <img src="{% static 'home/img/icon/3.svg' %}" alt="icon_3" />
+                            </span>
+                            <h4>Report Generation</h4>
+                            <p>We help you to generate a report of your current health condition prior to meeting a doctor.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-12">
+                    <div class="single_feature_img">
+                        <img src="{% static 'home/img/service.png' %}" alt="service" />
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-12">
+                    <div class="single_feature">
+                        <div class="single_feature_part">
+                            <span class="single_feature_icon">
+                                <img src="{% static 'home/img/icon/1.svg' %}" alt="icon_1" />
+                            </span>
+                            <h4>Efficient Time</h4>
+                            <p>We help you to reduce the time you wait in queue to meet your doctor. You can do that right from your home now.</p>
+                        </div>
+                    </div>
+                    <div class="single_feature">
+                        <div class="single_feature_part">
+                            <span class="single_feature_icon">
+                                <img src="{% static 'home/img/icon/2.svg' %}" alt="icon_2" />
+                            </span>
+                            <h4>Better Health</h4>
+                            <p>We help you in maintaining better health and hence live a better life!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
