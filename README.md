@@ -1,7 +1,5 @@
 # CareConnect
 
-**Description:**
-
 CareConnect is a semester 8 project, designed to act as a sympathetic medical chatbot. Patients can interact with the chatbot to communicate their medical issues. The chatbot will generate a detailed report and recommend a suitable doctor for the patient. The report will be forwarded to the designated doctor, along with the patient's contact details and available time slots for a consultation. The patient's medical history will be securely stored and managed.
 
 ---
