@@ -17,8 +17,11 @@ To run CareConnect, follow these steps:
     - For Windows:
         ```. venv/Scripts/activate```
 5. Install the required dependencies by running the command `pip install -r requirements.txt`.
-6. Start the Django development server using the command `python manage.py runserver`.
-7. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+6. Initialise the env file:
+    - Run ```cp dotenv .env```
+    - Copy the credentials from the Auth0 application and fill it in the placeholders
+7. Start the Django development server using the command `python manage.py runserver`.
+8. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 Returning users:
 
