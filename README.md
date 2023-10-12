@@ -16,9 +16,22 @@ To run CareConnect, follow these steps:
         ```. venv/bin/activate```
     - For Windows:
         ```. venv/Scripts/activate```
-3. Install the required dependencies by running the command `pip install -r requirements.txt`.
-4. Start the Django development server using the command `python manage.py runserver`.
-5. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+5. Install the required dependencies by running the command `pip install -r requirements.txt`.
+6. Start the Django development server using the command `python manage.py runserver`.
+7. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+Returning users:
+
+1. Activate the venv
+2. Run the server
+
+Exit the app:
+
+1. Use keyboard interrupt to exit the Django server: 
+    - ```ctrl + C```
+2. Deactivate the venv:
+    - ```deactivate```
+
 <!-- 
 ---
 
