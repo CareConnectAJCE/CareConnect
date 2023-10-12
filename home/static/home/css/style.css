@@ -1898,9 +1898,9 @@ ul {
 /* line 61, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_menu.scss */
 .main_menu .main-menu-item ul li .nav-link {
   color: #242429;
-  font-size: 14px;
+  font-size: 20px;
   padding: 38px 23px;
-  font-family: "Playfair Display", serif;
+  font-family: sans-serif;
   line-height: 13px;
   text-transform: capitalize;
 }
@@ -1914,7 +1914,9 @@ ul {
 
 /* line 72, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_menu.scss */
 .main_menu .main-menu-item ul li .nav-link:hover {
-  color: #0065e1;
+  color:black;
+  background-color: #0065e1 ;
+  padding: 18px 23px;
 }
 
 /* line 81, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_menu.scss */
