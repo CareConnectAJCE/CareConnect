@@ -2075,20 +2075,21 @@ ul {
   display: table;
   width: 100%;
   height: 935px;
+
 }
 
 /* line 26, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_banner.scss */
 .banner_part .banner_text .banner_text_iner {
   display: table-cell;
   vertical-align: middle;
-  padding-top: 155px;
+  margin-top: -400px;
 }
 
 @media (max-width: 991px) {
   /* line 26, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_banner.scss */
   .banner_part .banner_text .banner_text_iner {
     vertical-align: middle;
-    padding-top: 0;
+    padding-top: -100px;
   }
 }
 
