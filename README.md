@@ -10,6 +10,12 @@ To run CareConnect, follow these steps:
 
 1. Clone this repository to your local machine.
 2. Navigate to the MainProject directory.
+3. Create a virtual environment: ```python3 -m venv venv```
+4. Activate the venv: 
+    - For mac/linux:
+        ```. venv/bin/activate```
+    - For Windows:
+        ```. venv/Scripts/activate```
 3. Install the required dependencies by running the command `pip install -r requirements.txt`.
 4. Start the Django development server using the command `python manage.py runserver`.
 5. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
