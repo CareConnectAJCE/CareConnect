@@ -1,10 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 import json
 from authlib.integrations.django_client import OAuth
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 from urllib.parse import quote_plus, urlencode
+
+User = get_user_model()
 
 oauth = OAuth()
 
@@ -18,8 +21,6 @@ oauth.register(
     server_metadata_url=f"https://{settings.AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
-
-
 # Create your views here.
 def login(request):
     return oauth.auth0.authorize_redirect(
@@ -28,8 +29,26 @@ def login(request):
 
 def callback(request):
     token = oauth.auth0.authorize_access_token(request)
+    user_info = token.get("userinfo", {})
+    sub = user_info.get("sub")
+
+    # Check if the user already exists in the database
+    user, created = User.objects.get_or_create(sub=sub, defaults={
+        'email': user_info.get('email', ''),
+        'sub': sub,
+    })
+
+    if not created:
+        user.email = user_info.get('email', '')
+        user.sub = sub
+        user.last_login = user_info.get('updated_at', '')
+        user.username = user_info.get('nickname', '')
+        user.save()
+    else:
+        user.last_login = user_info.get('updated_at', '')
+
     request.session["user"] = token
-    return redirect(request.build_absolute_uri(reverse("index")))
+    return redirect(reverse("index"))
 
 def logout(request):
     request.session.clear()
