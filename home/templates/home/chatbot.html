@@ -1,0 +1,100 @@
+{% extends 'home/layout.html' %}
+{% load static %} 
+
+{% block extra_css %} 
+<style>
+    .chatbot_landing {
+        margin: 10%;
+        height: 80vh;
+        font-family: Arial;
+    }
+    #chatbox {
+        margin: 20px;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-radius: 10px;
+        min-height: 60vh; /* Set max-height to 80% of viewport height */
+        max-height: 60vh;
+        overflow-y: auto; /* Allow vertical scrolling if content exceeds max-height */
+    }
+    #userInput {
+        margin: 20px;
+    }
+    #textInput {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        font-family: Arial;
+        font-size: 16px;
+    }
+    .userText {
+        text-align: right;
+        margin-bottom: 5px;
+    }
+    .userText span {
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        display: inline-block;
+    }
+    .botText {
+        text-align: left;
+        margin-bottom: 5px;
+    }
+    .botText span {
+        background-color: #28a745;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        display: inline-block;
+    }
+</style>
+{% endblock %} 
+
+{% block content %}
+<div class="container chatbot_landing">
+    <h1 class="text-center"><b>AI-Gen ChatBot</b></h1>
+    <h4 class="text-center"><b>Please start your personalized interaction with the chatbot</b></h4>
+    <div id="chatbox" class="border">
+        <!-- Chat messages will be appended here -->
+    </div>
+    <div id="userInput" class="input-group text-center">
+        <div class="input-group-prepend">
+            <button class="btn btn-primary" type="button" onclick="getBotResponse()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <div class="input-group-append" style="width: 80%;">
+            <input id="textInput" type="text" class="form-control" name="msg" placeholder="Message" />
+        </div>
+    </div>     
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+    function getBotResponse() {
+        var rawText = $("#textInput").val();
+        var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
+        $("#textInput").val("");
+        $("#chatbox").append(userHtml);
+        $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+        $.get("/response", { msg: rawText }).done(function (data) {
+            console.log(data);
+            var botHtml = '<p class="botText"><span>' + data.message + "</span></p>";
+            $("#chatbox").append(botHtml);
+            $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+        });
+    }
+
+    $("#textInput").keypress(function (e) {
+        if (e.which == 13) {
+            getBotResponse();
+        }
+    });
+</script>
+
+{% endblock %}

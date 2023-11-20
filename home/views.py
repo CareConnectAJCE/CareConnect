@@ -1,15 +1,20 @@
-from django.shortcuts import render, redirect, reverse
 import json
+from openai import OpenAI
+from django.shortcuts import render, redirect, reverse
 from authlib.integrations.django_client import OAuth
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from urllib.parse import quote_plus, urlencode
+from django.http import JsonResponse
 
 User = get_user_model()
 
 oauth = OAuth()
+
+client = OpenAI()
+messages = []
 
 oauth.register(
     "auth0",
@@ -21,7 +26,7 @@ oauth.register(
     server_metadata_url=f"https://{settings.AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
 
-# Create your views here.
+# Auth0 Views
 def login(request):
     return oauth.auth0.authorize_redirect(
         request, request.build_absolute_uri(reverse("callback"))
@@ -64,6 +69,10 @@ def logout(request):
         ),
     )
 
+# Auth0 View End
+
+# Index and landing pages
+
 def index(request):
     return render(
         request,
@@ -79,3 +88,32 @@ def contact(request):
 
 def about(request):
     return render(request, "home/about.html")
+
+# Landing pages views end
+
+# Chatbot views and functions
+def chatbot_landing(request):
+    messages = []
+    return render(request, "home/chatbot.html")
+
+def get_completion(prompt, model="gpt-3.5-turbo"):
+    messages.append({
+        "role": "user",
+        "content": prompt,
+    })
+    response = client.chat.completions.create(
+        messages=messages,
+        model=model,
+    )
+    messages.append({
+        "role": response.choices[0].message.role,
+        "content": response.choices[0].message.content
+    })
+    return response.choices[0].message
+
+def get_bot_response(request):    
+    userText = request.GET
+    response = get_completion(userText['msg'])
+    return JsonResponse({
+        'message': response.content
+    })
