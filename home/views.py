@@ -1,9 +1,9 @@
 import json
+from .models import Conversation
 from openai import OpenAI
 from django.shortcuts import render, redirect, reverse
 from authlib.integrations.django_client import OAuth
 from django.conf import settings
-from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -96,15 +96,22 @@ def about(request):
 
 # Chatbot views and functions
 def chatbot_landing(request):
-    return render(request, "home/chatbot.html", context={
-            "session": request.session.get("user"),
+    session = request.session.get("user")
+    if session:
+        return render(request, "home/chatbot.html", context={
+            "session": session,
             "pretty": json.dumps(request.session.get("user"), indent=4),
         })
+    else:
+        return redirect(reverse('login'))
 
-def get_completion(prompt, model="gpt-3.5-turbo"):
+def get_completion(request, prompt, model="gpt-3.5-turbo"):
+    print(request.session["user"]["userinfo"])
+    userinfo = request.session["user"]["userinfo"]
+    user = User.objects.get(username=userinfo["nickname"])
     messages.append({
         "role": "user",
-        "content": f"The prompt by user is inside square brackets. Answer if the question is related to medical only or if its any greetings. If its greeting, reply appropriately and let it know that you are a medical bot. Otherwise let the user know the same: [{prompt}]",
+        "content": f"The prompt by user is inside square brackets. Answer if the question is related to medical only or if its any greetings. If its greeting, reply appropriately and let it know that you are a medical bot and also mention their name. Otherwise let the user know the same: Prompt by {userinfo['name']}: [{prompt}]",
     })
     response = client.chat.completions.create(
         messages=messages,
@@ -114,11 +121,18 @@ def get_completion(prompt, model="gpt-3.5-turbo"):
         "role": response.choices[0].message.role,
         "content": response.choices[0].message.content
     })
+
+    user_message = Conversation(user=user, is_user_message=True, message_content=prompt)
+    user_message.save()
+
+    bot_message = Conversation(user=user, is_user_message=False, message_content=response.choices[0].message.content)
+    bot_message.save()
+
     return response.choices[0].message
 
 def get_bot_response(request):    
     userText = request.GET
-    response = get_completion(userText['msg'])
+    response = get_completion(request, userText['msg'])
     return JsonResponse({
         'message': response.content
     })

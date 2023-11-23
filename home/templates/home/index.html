@@ -3,8 +3,8 @@
 
 {% block profile %}
     {% if session %}
-    <p style="padding-right: 5px;">Hi, {{session.userinfo.name}}!</p>
-    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
+        <p style="padding-right: 5px;">Hi, {{session.userinfo.name}}!</p>
+        <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
     {% else %}
         <a class="btn_2 d-none d-lg-block" href="{% url 'login' %}">Login</a>
     {% endif %}
