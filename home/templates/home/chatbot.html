@@ -53,10 +53,18 @@
 </style>
 {% endblock %} 
 
+{% block profile %}
+    {% if session %}
+    <p style="padding-right: 5px;">Hi, {{session.userinfo.name}}!</p>
+    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
+    {% else %}
+        <a class="btn_2 d-none d-lg-block" href="{% url 'login' %}">Login</a>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
 <div class="container chatbot_landing">
-    <h1 class="text-center"><b>AI-Gen ChatBot</b></h1>
-    <h4 class="text-center"><b>Please start your personalized interaction with the chatbot</b></h4>
+    <h1 class="text-center"><b>CureBot</b></h1>
     <div id="chatbox" class="border">
         <!-- Chat messages will be appended here -->
     </div>
@@ -95,6 +103,9 @@
             getBotResponse();
         }
     });
+
+    var botHtml = '<p class="botText"><span>Welcome! I am your medical assistant. Feel free to interact with me🙂</span></p>';
+    $("#chatbox").append(botHtml);
 </script>
 
 {% endblock %}

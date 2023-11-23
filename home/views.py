@@ -6,6 +6,7 @@ from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
 from urllib.parse import quote_plus, urlencode
 from django.http import JsonResponse
 
@@ -57,6 +58,8 @@ def callback(request):
 
 def logout(request):
     request.session.clear()
+    if len(messages)>=1:
+        messages.clear()
 
     return redirect(
         f"https://{settings.AUTH0_DOMAIN}/v2/logout?"
@@ -93,13 +96,15 @@ def about(request):
 
 # Chatbot views and functions
 def chatbot_landing(request):
-    messages = []
-    return render(request, "home/chatbot.html")
+    return render(request, "home/chatbot.html", context={
+            "session": request.session.get("user"),
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        })
 
 def get_completion(prompt, model="gpt-3.5-turbo"):
     messages.append({
         "role": "user",
-        "content": prompt,
+        "content": f"The prompt by user is inside square brackets. Answer if the question is related to medical only or if its any greetings. If its greeting, reply appropriately and let it know that you are a medical bot. Otherwise let the user know the same: [{prompt}]",
     })
     response = client.chat.completions.create(
         messages=messages,
