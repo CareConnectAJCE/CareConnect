@@ -106,12 +106,11 @@ def chatbot_landing(request):
         return redirect(reverse('login'))
 
 def get_completion(request, prompt, model="gpt-3.5-turbo"):
-    print(request.session["user"]["userinfo"])
     userinfo = request.session["user"]["userinfo"]
     user = User.objects.get(username=userinfo["nickname"])
     messages.append({
         "role": "user",
-        "content": f"The prompt by user is inside square brackets. Answer if the question is related to medical only or if its any greetings. If its greeting, reply appropriately and let it know that you are a medical bot and also mention their name. Otherwise let the user know the same: Prompt by {userinfo['name']}: [{prompt}]",
+        "content": f"The prompt by user is inside square brackets. Answer if the question is related to medical only or if its any greetings. If its greeting, reply appropriately and let it know that you are a medical bot and also mention their name. If it is a medical prompt, ask and try to get more details about the same. Otherwise let the user know that you won't handle the issues: Prompt by {userinfo['name']}: [{prompt}]",
     })
     response = client.chat.completions.create(
         messages=messages,
