@@ -93,6 +93,7 @@ def contact(request):
 def about(request):
     return render(request, "home/about.html")
 
+@login_required
 def doctor_view(request):
     return render(
         request,
@@ -104,6 +105,7 @@ def doctor_view(request):
         },
     )
 
+@login_required
 def patient_view(request):
     return render(
         request,
@@ -118,15 +120,12 @@ def patient_view(request):
 # Landing pages views end
 
 # Chatbot views and functions
+@login_required
 def chatbot_landing(request):
-    session = request.session.get("user")
-    if session:
-        return render(request, "home/chatbot.html", context={
-            "session": session,
-            "pretty": json.dumps(request.session.get("user"), indent=4),
-        })
-    else:
-        return redirect(reverse('login'))
+    return render(request, "home/chatbot.html", context={
+        "session": request.session.get("user"),
+        "pretty": json.dumps(request.session.get("user"), indent=4),
+    })
 
 def get_completion(request, prompt, model="gpt-3.5-turbo"):
     userinfo = request.session["user"]["userinfo"]
