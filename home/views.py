@@ -82,6 +82,7 @@ def index(request):
         "home/index.html",
         context={
             "session": request.session.get("user"),
+            "user": request.user,
             "pretty": json.dumps(request.session.get("user"), indent=4),
         },
     )
@@ -91,6 +92,28 @@ def contact(request):
 
 def about(request):
     return render(request, "home/about.html")
+
+def doctor_view(request):
+    return render(
+        request,
+        "home/doctor.html",
+        context={
+            "session": request.session.get("user"),
+            "user": request.user,
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        },
+    )
+
+def patient_view(request):
+    return render(
+        request,
+        "home/patient.html",
+        context={
+            "session": request.session.get("user"),
+            "user": request.user,
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        },
+    )
 
 # Landing pages views end
 

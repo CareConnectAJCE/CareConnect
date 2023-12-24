@@ -3,7 +3,12 @@
 
 {% block profile %}
     {% if session %}
-        <p style="padding-right: 5px;">Hi, {{session.userinfo.name}}!</p>
+        <p style="padding-right: 10px;">Hi, {{session.userinfo.name}}!</p>
+        {% if user.is_doctor %}
+            <a style="margin-right: 10px;" class="btn_2 d-none d-lg-block" href="{% url 'doctor' %}">Dashboard</a>
+        {% else %}
+            <a style="margin-right: 10px;" class="btn_2 d-none d-lg-block" href="{% url 'patient' %}">Dashboard</a>
+        {% endif %}
         <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
     {% else %}
         <a class="btn_2 d-none d-lg-block" href="{% url 'login' %}">Login</a>

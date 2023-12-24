@@ -1,0 +1,95 @@
+<!-- 
+    This is the doctor dashboard where the doctor would be able to access the chatbot
+    and also would be able to see the schedules with the patients and the history of int-
+    eractions
+-->
+
+{% extends 'home/layout.html' %}
+{% load static %}
+
+{% block profile %}
+    <p style="padding-right: 10px;">Hi, {{session.userinfo.name}}!</p>
+    {% if user.is_doctor %}
+        <a style="margin-right: 10px;" class="btn_2 d-none d-lg-block" href="{% url 'doctor' %}">Dashboard</a>
+    {% else %}
+        <a style="margin-right: 10px;" class="btn_2 d-none d-lg-block" href="{% url 'patient' %}">Dashboard</a>
+    {% endif %}
+    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .doctor_dashboard {
+            margin: 10%;
+            height: 80vh;
+            font-family: Arial;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container doctor_dashboard">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Upcoming Appointments</h2>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if appointments|length > 1 %}
+                                {% for appointment in appointments %}
+                                    <tr>
+                                        <td>{{appointment.patient}}</td>
+                                        <td>{{appointment.date}}</td>
+                                        <td>{{appointment.time}}</td>
+                                        <td>{{appointment.reason}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4">No upcoming appointments</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                <h2>History</h2>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if history|length > 1 %}
+                                {% for appointment in history %}
+                                    <tr>
+                                        <td>{{appointment.patient}}</td>
+                                        <td>{{appointment.date}}</td>
+                                        <td>{{appointment.time}}</td>
+                                        <td>{{appointment.reason}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4">No history</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
