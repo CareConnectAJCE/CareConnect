@@ -6,6 +6,7 @@
 
 {% extends 'home/layout.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block profile %}
     <p style="padding-right: 10px;">Hi, {{session.userinfo.name}}!</p>
@@ -43,12 +44,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if appointments|length > 1 %}
+                            {% if appointments|length >= 1 %}
                                 {% for appointment in appointments %}
                                     <tr>
                                         <td>{{appointment.doctor}}</td>
-                                        <td>{{appointment.date}}</td>
-                                        <td>{{appointment.time}}</td>
+                                        <td>{{appointment.appointment_time|date:"Y-m-d"}}</td>
+                                        <td>{{appointment.appointment_time|time:"g:i A"}}</td>
                                         <td>{{appointment.reason}}</td>
                                     </tr>
                                 {% endfor %}
@@ -72,12 +73,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% if history|length > 1 %}    
+                            {% if history|length >= 1 %}    
                                 {% for appointment in history %}
                                     <tr>
                                         <td>{{appointment.doctor}}</td>
-                                        <td>{{appointment.date}}</td>
-                                        <td>{{appointment.time}}</td>
+                                        <td>{{appointment.appointment_time|date:"Y-m-d"}}</td>
+                                        <td>{{appointment.appointment_time|time:"g:i A"}}</td>
                                         <td>{{appointment.reason}}</td>
                                     </tr>
                                 {% endfor %}

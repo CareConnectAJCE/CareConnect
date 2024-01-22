@@ -1,5 +1,6 @@
 import json
-from .models import Conversation
+import datetime
+from .models import Conversation, Appointment
 from openai import OpenAI
 from django.shortcuts import render, redirect, reverse
 from authlib.integrations.django_client import OAuth
@@ -93,24 +94,33 @@ def contact(request):
 def about(request):
     return render(request, "home/about.html")
 
-@login_required
 def doctor_view(request):
+    userinfo = request.session["user"]["userinfo"]
+    user = User.objects.get(username=userinfo["nickname"])
+    appointments = Appointment.objects.filter(doctor=user)
     return render(
         request,
         "home/doctor.html",
         context={
+            "appointments": appointments,
             "session": request.session.get("user"),
             "user": request.user,
             "pretty": json.dumps(request.session.get("user"), indent=4),
         },
     )
 
-@login_required
 def patient_view(request):
+    userinfo = request.session["user"]["userinfo"]
+    user = User.objects.get(username=userinfo["nickname"])
+    # appointments need to fetched that are todays data or after and history with date before today
+    appointments = Appointment.objects.filter(user=user, appointment_time__gte=datetime.now())
+    history = Appointment.objects.filter(user=user, appointment_time__lt=datetime.now())
     return render(
         request,
         "home/patient.html",
         context={
+            "appointments": appointments,
+            "history": history,
             "session": request.session.get("user"),
             "user": request.user,
             "pretty": json.dumps(request.session.get("user"), indent=4),
@@ -120,7 +130,6 @@ def patient_view(request):
 # Landing pages views end
 
 # Chatbot views and functions
-@login_required
 def chatbot_landing(request):
     return render(request, "home/chatbot.html", context={
         "session": request.session.get("user"),
