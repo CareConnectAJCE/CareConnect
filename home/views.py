@@ -223,6 +223,7 @@ def initialize_chat(user):
     Time: Time the patient wants to schedule, Symptoms: The list of symptoms the patient has \
     and Predicted Disease: The disease the doctor thinks the patient has. \
     Try to use patients name in initial conversation. \
+    Reply with 'Bye!' if the patient is ending the chat. 
     """
 
     general_prompt = f"""
@@ -234,6 +235,7 @@ def initialize_chat(user):
     No matter what the patient asks, if its not related to health, \
     the doctor should not answer the question. Instead, the doctor should ask the patient \
     to ask if the patient has any health related questions. \
+    Reply with 'Bye!' if the patient is ending the chat. 
     """
 
     general_prompt = ChatPromptTemplate.from_messages(
@@ -298,6 +300,11 @@ def get_bot_response(request):
     result = final_chain.invoke(context)
 
     memory.save_context(context, {"output": result})
+
+    if "bye" in result:
+        return JsonResponse({
+            'message': "Bye! Have a nice day😇"
+        })
     
     return JsonResponse({
         'message': result
