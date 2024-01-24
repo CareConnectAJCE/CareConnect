@@ -9,7 +9,7 @@ class User(AbstractUser):
         return self.username
 
 class Appointment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="patient")
     doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="doctor")
     appointment_time = models.DateTimeField()
     reason = models.TextField()
