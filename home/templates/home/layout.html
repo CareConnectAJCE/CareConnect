@@ -9,16 +9,12 @@
     <link rel="icon" href="{% static 'home/img/favicon.png' %}" />
 
     <!-- CSS Files -->
-    <link rel="stylesheet" href="{% static 'home/css/bootstrap.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'home/css/animate.css' %}" />
-    <link rel="stylesheet" href="{% static 'home/css/owl.carousel.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'home/css/themify-icons.css' %}" />
-    <link rel="stylesheet" href="{% static 'home/css/flaticon.css' %}" />
-    <link rel="stylesheet" href="{% static 'home/css/magnific-popup.css' %}" />
-    <link rel="stylesheet" href="{% static 'home/css/nice-select.css' %}" />
-    <link rel="stylesheet" href="{% static 'home/css/slick.css' %}" />
     <link rel="stylesheet" href="{% static 'home/css/style.css' %}" />
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -112,21 +108,15 @@
     </footer>
 
     <!-- JS Files -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://kit.fontawesome.com/145b4ea913.js" crossorigin="anonymous"></script>
-    <script src="{% static 'home/js/jquery-1.12.1.min.js' %}"></script>
-    <script src="{% static 'home/js/popper.min.js' %}"></script>
-    <script src="{% static 'home/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'home/js/owl.carousel.min.js' %}"></script>
-    <script src="{% static 'home/js/jquery.nice-select.min.js' %}"></script>
-    <script src="{% static 'home/js/jquery.ajaxchimp.min.js' %}"></script>
-    <script src="{% static 'home/js/jquery.form.js' %}"></script>
-    <script src="{% static 'home/js/jquery.validate.min.js' %}"></script>
-    <script src="{% static 'home/js/mail-script.js' %}"></script>
-    <script src="{% static 'home/js/contact.js' %}"></script>
-    <script src="{% static 'home/js/custom.js' %}"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Include Bootstrap JS and dependencies (Popper.js and jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    
     <script>
         AOS.init();
     </script>
