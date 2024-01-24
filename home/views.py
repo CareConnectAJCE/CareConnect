@@ -1,6 +1,8 @@
 # Required imports
 import json
 from urllib.parse import quote_plus, urlencode
+from typing import Literal
+from operator import itemgetter
 
 # Utils and Models import
 from .models import Conversation, Appointment
@@ -11,7 +13,7 @@ from openai import OpenAI
 
 # Langchain imports
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.chat_models import ChatVertexAI, ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableBranch, RunnablePassthrough, RunnableLambda
@@ -23,7 +25,7 @@ from langchain_core.pydantic_v1 import BaseModel
 from authlib.integrations.django_client import OAuth
 
 # Django imports
-from django.shortcuts import get_object_or_404, render, redirect, reverse
+from django.shortcuts import render, redirect, reverse
 from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse
@@ -102,7 +104,6 @@ def logout(request):
 # Index and landing pages
 
 def index(request):
-    print(request.session)
     if request.session.get("user"):
         user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
     else:
@@ -141,7 +142,6 @@ def edit_user(request):
 
         except Exception as e:
             # Handle exceptions (e.g., if the user doesn't exist)
-            print(e)
             return JsonResponse({'success': False, 'error_message': str(e)})
 
     # Handle other HTTP methods if needed
@@ -201,38 +201,100 @@ def appointment_deleted(request):
 # Landing pages views end
 
 # Chatbot views and functions
+
+def initialize_chat(user):
+    global final_chain, memory
+
+    memory = ConversationBufferMemory(return_messages=True)
+    memory.load_memory_variables({})
+
+    main_prompt = f"""
+    The following is a conversation with a doctor. The doctor is helping the patient with their health issues. \
+    The patient is {user.first_name} {user.last_name}. \
+    The doctor is a very helpful, loyal and friendly person. \
+    The doctor is very good at his job. \
+    The doctor keeps track of the symptoms of the patient. \
+    The doctor makes sure that the patient is calm and won't tell the patient directly about \
+    the seriousness of the disease or what the disease is. \
+    The doctor would suggest the patient with some home remedies if its a minor disease. \
+    The doctor would suggest the patient to go to the hospital if its a major disease \
+    and asks if the patient needs to schedule a session with the doctor. \
+    If the patient says yes, you should generate a json with the following format: \
+    Time: Time the patient wants to schedule, Symptoms: The list of symptoms the patient has \
+    and Predicted Disease: The disease the doctor thinks the patient has. \
+    """
+
+    general_prompt = f"""
+    The patient is {user.first_name} {user.last_name}. \
+    The patient is having a conversation with a doctor. \
+    The doctor is a very helpful, loyal and friendly person. \
+    Don't answer any questions that are not related to health. \
+    The doctor is very good at his job. \
+    """
+
+    general_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", general_prompt),
+            MessagesPlaceholder(variable_name="history"),
+            ("human", "{input}"),
+        ]
+    )
+
+    doctor_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", main_prompt),
+            MessagesPlaceholder(variable_name="history"),
+            ("human", "{input}"),
+        ]
+    )
+
+    prompt_branch = RunnableBranch(
+        (lambda x: x['topic'] == 'patient query', doctor_prompt),
+        general_prompt
+    )
+
+    class TopicClassifier(BaseModel):
+        "Classify the topic of the user question"
+        topic: Literal['general', 'patient query']
+        "The topic of the user question. One of 'patient query' or 'general'."
+
+    classifier_function = convert_pydantic_to_openai_function(TopicClassifier)
+    llm = ChatOpenAI().bind(
+        functions=[classifier_function], function_call={"name": "TopicClassifier"}
+    )
+    parser = PydanticAttrOutputFunctionsParser(
+        pydantic_schema=TopicClassifier, attr_name="topic"
+    )
+    classifier_chain = llm | parser
+
+    final_chain = (
+        RunnablePassthrough.assign(history=RunnableLambda(memory.load_memory_variables) | itemgetter("history"))
+        | RunnablePassthrough.assign(topic=itemgetter("input") | classifier_chain)
+        | prompt_branch
+        | ChatOpenAI()
+        | StrOutputParser()
+    )
+
 def chatbot_landing(request):
+    initialize_chat(User.objects.get(sub=request.session["user"]["userinfo"]["sub"]))
     return render(request, "home/chatbot.html", context={
         "session": request.session.get("user"),
         "pretty": json.dumps(request.session.get("user"), indent=4),
     })
 
-def get_completion(request, prompt, model="gpt-3.5-turbo"):
-    user = User.objects.filter(sub=request.session["user"]["userinfo"]["sub"])
-    messages.append({
-        "role": "user",
-        "content": f"The prompt by user is inside square brackets. Answer if the question is related to medical only or if its any greetings. If its greeting, reply appropriately and let it know that you are a medical bot and also mention their name. If it is a medical prompt, ask and try to get more details about the same. Otherwise let the user know that you won't handle the issues: Prompt by {userinfo['name']}: [{prompt}]",
-    })
-    response = client.chat.completions.create(
-        messages=messages,
-        model=model,
-    )
-    messages.append({
-        "role": response.choices[0].message.role,
-        "content": response.choices[0].message.content
-    })
+def get_bot_response(request):
+    user_message = request.GET['msg']
 
-    user_message = Conversation(user=user, is_user_message=True, message_content=prompt)
-    user_message.save()
+    if user_message:
+        return JsonResponse({
+            'message': "Bye! Have a nice day😇"
+        })
 
-    bot_message = Conversation(user=user, is_user_message=False, message_content=response.choices[0].message.content)
-    bot_message.save()
+    context = {"input": user_message}
+    result = final_chain.invoke(context)
 
-    return response.choices[0].message
-
-def get_bot_response(request):    
-    userText = request.GET
-    response = get_completion(request, userText['msg'])
+    memory.save_context(context, {"output": result})
+    
     return JsonResponse({
-        'message': response.content
+        'message': result
     })

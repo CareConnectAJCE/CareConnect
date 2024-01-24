@@ -90,12 +90,22 @@
         $("#textInput").val("");
         $("#chatbox").append(userHtml);
         $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
-        $.get("/response", { msg: rawText }).done(function (data) {
-            console.log(data);
-            var botHtml = '<p class="botText"><span>' + data.message + "</span></p>";
-            $("#chatbox").append(botHtml);
-            $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
-        });
+
+        fetch("/response?msg=" + encodeURIComponent(rawText))
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+                var botHtml = '<p class="botText"><span>' + data.message + "</span></p>";
+                $("#chatbox").append(botHtml);
+                $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+                if (data.message == "Bye! Have a nice day😇") {
+                    location.replace('/')
+                }
+            })
+            .catch(function(error) {
+                console.error("Error:", error);
+            });
     }
 
     $("#textInput").keypress(function (e) {
