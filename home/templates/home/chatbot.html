@@ -100,7 +100,12 @@
                 $("#chatbox").append(botHtml);
                 $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
                 if (data.message == "Bye! Have a nice day😇") {
-                    location.replace('/')
+                    // hide the component userInput
+                    $("#userInput").hide();
+                    // wait 3 seconds and reload the page
+                    setTimeout(function() {
+                        window.location.replace('/')
+                    }, 3000);
                 }
             })
             .catch(function(error) {
