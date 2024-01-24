@@ -222,14 +222,18 @@ def initialize_chat(user):
     If the patient says yes, you should generate a json with the following format: \
     Time: Time the patient wants to schedule, Symptoms: The list of symptoms the patient has \
     and Predicted Disease: The disease the doctor thinks the patient has. \
+    Try to use patients name in initial conversation. \
     """
 
     general_prompt = f"""
+    Don't answer any questions that are not related to health. \
     The patient is {user.first_name} {user.last_name}. \
     The patient is having a conversation with a doctor. \
     The doctor is a very helpful, loyal and friendly person. \
-    Don't answer any questions that are not related to health. \
     The doctor is very good at his job. \
+    No matter what the patient asks, if its not related to health, \
+    the doctor should not answer the question. Instead, the doctor should ask the patient \
+    to ask if the patient has any health related questions. \
     """
 
     general_prompt = ChatPromptTemplate.from_messages(
@@ -285,7 +289,7 @@ def chatbot_landing(request):
 def get_bot_response(request):
     user_message = request.GET['msg']
 
-    if user_message:
+    if "bye" in user_message.lower():
         return JsonResponse({
             'message': "Bye! Have a nice day😇"
         })
