@@ -104,3 +104,6 @@ class Chat:
             return "Bye! Have a nice day😇"
         
         return result
+    
+# https://python.langchain.com/docs/modules/model_io/output_parsers/types/json
+# Docs: For generating json response 
