@@ -11,7 +11,7 @@ class User(AbstractUser):
 class Appointment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="patient")
     doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="doctor")
-    appointment_time = models.DateTimeField()
+    appointment_time = models.DateTimeField(null=True)
     reason = models.TextField()
     visited = models.BooleanField(default=False)
     visited_time = models.DateTimeField(null=True)
