@@ -140,7 +140,7 @@ def doctor_view(request):
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
     appointments = Appointment.objects.filter(doctor=user)
     history = Appointment.objects.filter(
-        Q(user=user, appointment_time__lt=current_time, visited=True) | Q(user=user, visited=True)
+        Q(doctor=user, appointment_time__lt=current_time, visited=True) | Q(doctor=user, visited=True)
     )
     return render(
         request,
@@ -173,12 +173,14 @@ def patient_view(request):
     )
 
 def appointment_visited(request):
+    print(request)
     appointment_id = request.POST["appointment_id"]
+    user_type = request.POST["user_type"]
     appointment = Appointment.objects.get(id=appointment_id)
     appointment.visited = True
     appointment.visited_time = timezone.now()
     appointment.save()
-    return redirect(reverse("patient"))
+    return redirect(reverse(user_type))
 
 def appointment_deleted(request):
     appointment_id = request.POST["appointment_id"]
