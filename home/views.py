@@ -192,8 +192,12 @@ def appointment_deleted(request):
 
 # Chatbot views and functions
 def chatbot_landing(request):
-    global Chat
-    Chat = Chat(User.objects.get(sub=request.session["user"]["userinfo"]["sub"]))
+    global chat
+    try:
+        chat = Chat(User.objects.get(sub=request.session["user"]["userinfo"]["sub"]))
+    except Exception as e:
+        print(e)
+        return redirect(reverse("index"))
     return render(request, "home/chatbot.html", context={
         "session": request.session.get("user"),
         "pretty": json.dumps(request.session.get("user"), indent=4),
@@ -201,6 +205,6 @@ def chatbot_landing(request):
 
 def get_bot_response(request):
     user_message = request.GET.get('msg')
-    response = Chat.get_bot_response(user_message)
+    response = chat.get_bot_response(user_message)
 
     return JsonResponse({'message': response})
