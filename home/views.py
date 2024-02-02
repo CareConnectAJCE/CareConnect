@@ -3,7 +3,7 @@ import json
 from urllib.parse import quote_plus, urlencode
 
 # Utils and Models import
-from .models import Conversation, Appointment
+from .models import Conversation, Appointment, Doctor
 from .utils import Chat
 
 # OpenAI imports
@@ -172,6 +172,21 @@ def patient_view(request):
         },
     )
 
+def doctor_registration(request):
+    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    if request.method == "GET":
+        return render(
+            request,
+            "home/doctorreg.html",
+            context={
+                "session": request.session.get("user"),
+                "user": user,
+                "pretty": json.dumps(request.session.get("user"), indent=4),
+            },
+        )
+    else:
+        pass
+
 def appointment_visited(request):
     print(request)
     appointment_id = request.POST["appointment_id"]
@@ -206,5 +221,8 @@ def chatbot_landing(request):
 def get_bot_response(request):
     user_message = request.GET.get('msg')
     response = chat.get_bot_response(user_message)
+
+    Conversation.objects.create(user=chat.user, is_user_message=True, message_content=user_message)
+    Conversation.objects.create(user=chat.user, is_user_message=False, message_content=response)
 
     return JsonResponse({'message': response})

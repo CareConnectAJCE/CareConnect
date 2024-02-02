@@ -11,6 +11,7 @@ urlpatterns = [
     path('edit_user', views.edit_user, name='edit_user'),
     path('doctor/', views.doctor_view, name='doctor'),
     path('patient/', views.patient_view, name='patient'),
+    path('doctor/register/', views.doctor_registration, name='doctor_register'),
     path('appointment/visited/', views.appointment_visited, name='mark_visited'),
     path('appointment/deleted/', views.appointment_deleted, name='mark_deleted'),
     path('chat/', views.chatbot_landing, name='chat'),

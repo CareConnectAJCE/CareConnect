@@ -27,6 +27,11 @@
                             <h5>We are here for your care</h5>
                             <h1>Best Care & Better Health</h1>
                             <a href="{% url 'chat' %}" class="btn_2">Talk to our Bot Expert</a>
+                            {% if session %}
+                                {% if user.is_doctor %}
+                                    <a href="{% url 'doctor_register' %}" class="btn_2">Register as a doctor</a>
+                                {% endif %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

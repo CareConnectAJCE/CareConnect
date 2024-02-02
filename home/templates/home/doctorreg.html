@@ -1,0 +1,152 @@
+<!-- doctorreg.html -->
+
+{% extends 'home/layout.html' %}
+{% load static %}
+
+{% block profile %}
+    <p style="padding-right: 10px;">Hi, {{session.userinfo.name}}!</p>
+    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
+{% endblock %}
+
+
+{% block extra_css %}
+    <style>
+        .doctor_reg {
+            margin: 10%;
+            height: 80vh;
+            font-family: Arial;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container doctor_reg">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section_tittle text-center">
+                    <h2>Doctor Registration</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <form action="{% url 'doctor_register' %}" method="post">
+                    {% csrf_token %}
+                    <div class="col-lg-12">
+                        <div class="text-left">
+                            <h4>Doctor Details</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group mt-3">
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Name" value={{user.first_name}} required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="email" name="email" placeholder="Email" value={{user.email}} required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="address" name="address" placeholder="Hospital Address" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group mt-3">
+                                <input type="text" class="form-control" id="qualification" name="qualification" placeholder="Qualification" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="specialization" name="specialization" placeholder="Specialization" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="experience" name="experience" placeholder="Experience" required>
+                            </div>
+                        </div>
+                        <!-- add hidden inputs to store latitude and longitude of the user -->
+                        <input type="hidden" id="latitude" name="latitude" value="">
+                        <input type="hidden" id="longitude" name="longitude" value="">
+
+                        <div class="col-lg-12">
+                            <div class="form-group
+                            mt-3">
+                                <button type="submit" class="btn_1">Register</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Illustrations -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Location Info</h6>
+                </div>
+                <div class="card-body">
+                    <div class="card-text">
+                        <iframe class="px-2" id="map" src=""></iframe>
+
+                    </div>
+                    <br>
+                    <a target="_blank" rel="nofollow" href="https://maps.google.com/">Get more detailed info
+                        on Google Maps &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // get the user's location
+        navigator.geolocation.getCurrentPosition(function(position) {
+            document.getElementById('latitude').value = position.coords.latitude;
+            document.getElementById('longitude').value = position.coords.longitude;
+
+            console.log("Latitude: ", document.getElementById('latitude'));
+            console.log("Longitude: ", document.getElementById('longitude'));
+
+        });
+    </script>
+    <script>
+        var y = document.getElementById("map");
+    
+        function getLocation() {
+    
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+    
+        function showPosition(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const loc = lat + "," + lng;
+            console.log(loc);
+            const link = ("https://maps.google.com/maps?q=" + loc + "&hl=es;z=14&amp;&output=embed");
+            y.setAttribute("src", link)
+            console.log(link);
+        }
+
+        getLocation();
+
+    </script>
+{% endblock %}
