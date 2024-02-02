@@ -13,7 +13,7 @@
     <style>
         .doctor_reg {
             margin: 10%;
-            height: 80vh;
+            min-height: 80vh;
             font-family: Arial;
         }
 
@@ -88,12 +88,6 @@
                             </div>
                         </div>
                         <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="address" name="address" placeholder="Hospital Address" required>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
                             <div class="form-group mt-3">
                                 <input type="text" class="form-control" id="qualification" name="qualification" placeholder="Qualification" required>
                             </div>
@@ -110,33 +104,81 @@
                                 <input type="text" class="form-control" id="experience" name="experience" placeholder="Experience" required>
                             </div>
                         </div>
-                        <!-- add hidden inputs to store latitude and longitude of the user -->
-                        <input type="hidden" id="latitude" name="latitude" value="">
-                        <input type="hidden" id="longitude" name="longitude" value="">
-
                         <div class="col-lg-12">
+                            <div class="text-left">
+                                <h4>Hospital Details</h4>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
                             <div class="form-group
                             mt-3">
-                                <button type="submit" class="btn_1">Register</button>
+                                <input type="text" class="form-control" id="address" name="address" placeholder="Hospital Address" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group
+                            mt-3">
+                                <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="text-left">
+                                <h4>Location</h4>
+                            </div>
+                        </div>
+                        
+                        <!-- add hidden inputs to store latitude and longitude of the user -->
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="latitude" name="latitude" value="" placeholder="Latitude">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="longitude" name="longitude" value="" placeholder="Longitude">
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <!-- add a button that calls getLocation function -->
+                            <button class="btn_1" onclick="getLocation(event)">Get Location</button>
+                        </div>
+
+                        <div class="card shadow w-100 mt-4" id="map-container">
+                            <div class="card-body mt-5">
+                                <div class="card-text w-100 h-100">
+                                    <iframe id="map" frameborder="0" style="border:0;" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mt-4 text-center">
+                            <div class="form-group
+                            mt-3">
+                                <button 
+                                    type="submit"
+                                    class="btn_1"
+                                >
+                                    Register
+                                </button>
                             </div>
                         </div>
                     </div>
                 </form>
-            </div>
-        </div>
-        <div class="row">
-            <div class="card shadow mb-4 w-100">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Location Info</h6>
-                </div>
-                <div class="card-body">
-                    <div class="card-text w-100 h-100">
-                        <div id="loading" class="loading-container">
-                            <div class="loading-spinner"></div>
-                            <p>Loading...</p>
-                        </div>
-                        <iframe id="map" frameborder="0" style="border:0" allowfullscreen></iframe>
-                    </div>
+                <div id="loading" class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p>Loading...</p>
                 </div>
             </div>
         </div>
@@ -145,31 +187,23 @@
 
 {% block extra_js %}
     <script>
-        // get the user's location
-        navigator.geolocation.getCurrentPosition(function(position) {
-            document.getElementById('latitude').value = position.coords.latitude;
-            document.getElementById('longitude').value = position.coords.longitude;
-
-            console.log("Latitude: ", document.getElementById('latitude'));
-            console.log("Longitude: ", document.getElementById('longitude'));
-
-        });
-    </script>
-    <script>
-        var map = document.getElementById("map");
+        var map = document.getElementById("map-container");
         var loadingScreen = document.getElementById("loading");
+
+        map.style.display = "none";
+        loadingScreen.style.display = "none"
     
         function showLoading() {
             loadingScreen.style.display = "block";
-            map.style.display = "none";
+            map.style.display = "block";
         }
     
         function hideLoading() {
             loadingScreen.style.display = "none";
-            map.style.display = "block";
         }
     
-        function getLocation() {
+        function getLocation(e) {
+            e.preventDefault();
             showLoading();
     
             if (navigator.geolocation) {
@@ -185,6 +219,8 @@
     
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
             const loc = lat + "," + lng;
             const link = "https://maps.google.com/maps?q=" + loc + "&hl=es;z=14&amp;&output=embed";
             map.setAttribute("src", link);
@@ -210,7 +246,6 @@
             }
         }
     
-        getLocation();
     </script>
     
 {% endblock %}
