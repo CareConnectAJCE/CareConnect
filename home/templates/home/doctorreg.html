@@ -16,6 +16,38 @@
             height: 80vh;
             font-family: Arial;
         }
+
+        #map {
+            width: 100%;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 {% endblock %}
 
@@ -93,19 +125,18 @@
             </div>
         </div>
         <div class="row">
-            <!-- Illustrations -->
-            <div class="card shadow mb-4">
+            <div class="card shadow mb-4 w-100">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Location Info</h6>
                 </div>
                 <div class="card-body">
-                    <div class="card-text">
-                        <iframe class="px-2" id="map" src=""></iframe>
-
+                    <div class="card-text w-100 h-100">
+                        <div id="loading" class="loading-container">
+                            <div class="loading-spinner"></div>
+                            <p>Loading...</p>
+                        </div>
+                        <iframe id="map" frameborder="0" style="border:0" allowfullscreen></iframe>
                     </div>
-                    <br>
-                    <a target="_blank" rel="nofollow" href="https://maps.google.com/">Get more detailed info
-                        on Google Maps &rarr;</a>
                 </div>
             </div>
         </div>
@@ -125,28 +156,61 @@
         });
     </script>
     <script>
-        var y = document.getElementById("map");
+        var map = document.getElementById("map");
+        var loadingScreen = document.getElementById("loading");
+    
+        function showLoading() {
+            loadingScreen.style.display = "block";
+            map.style.display = "none";
+        }
+    
+        function hideLoading() {
+            loadingScreen.style.display = "none";
+            map.style.display = "block";
+        }
     
         function getLocation() {
+            showLoading();
     
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition);
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
             } else {
-                x.innerHTML = "Geolocation is not supported by this browser.";
+                // Use proper element ID
+                map.innerHTML = "Geolocation is not supported by this browser.";
             }
         }
     
         function showPosition(position) {
+            hideLoading();
+    
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             const loc = lat + "," + lng;
-            console.log(loc);
-            const link = ("https://maps.google.com/maps?q=" + loc + "&hl=es;z=14&amp;&output=embed");
-            y.setAttribute("src", link)
+            const link = "https://maps.google.com/maps?q=" + loc + "&hl=es;z=14&amp;&output=embed";
+            map.setAttribute("src", link);
             console.log(link);
         }
-
+    
+        function showError(error) {
+            hideLoading();
+    
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    map.innerHTML = "User denied the request for Geolocation.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    map.innerHTML = "Location information is unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    map.innerHTML = "The request to get user location timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    map.innerHTML = "An unknown error occurred.";
+                    break;
+            }
+        }
+    
         getLocation();
-
     </script>
+    
 {% endblock %}
