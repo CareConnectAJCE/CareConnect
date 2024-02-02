@@ -12,12 +12,15 @@ class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="doctor_details")
     specialization = models.CharField(max_length=255)
     qualification = models.TextField()
+    experience = models.IntegerField()
     phone = models.CharField(max_length=15)
     address = models.TextField()
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
     zip = models.CharField(max_length=10)
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
 
 class Appointment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="patient")

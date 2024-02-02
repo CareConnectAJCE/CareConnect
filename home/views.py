@@ -154,6 +154,28 @@ def doctor_view(request):
         },
     )
 
+def admin_view(request):
+    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    doctor_applications = Doctor.objects.filter(user__is_doctor=False)
+    doctors = Doctor.objects.filter(user__is_doctor=True)
+    total_doctors = len(doctors)
+    total_patients = len(User.objects.filter(is_doctor=False))
+    total_appointments = len(Appointment.objects.all())
+    return render(
+        request,
+        "home/admin.html",
+        context={
+            "doctors": doctors,
+            "doctor_applications": doctor_applications,
+            "session": request.session.get("user"),
+            "user": user,
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+            "total_doctors": total_doctors,
+            "total_patients": total_patients,
+            "total_appointments": total_appointments
+        },
+    )
+
 def patient_view(request):
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
     appointments = Appointment.objects.filter(user=user, appointment_time__gte=current_time, visited=False)
@@ -185,7 +207,33 @@ def doctor_registration(request):
             },
         )
     else:
-        pass
+        Doctor.objects.get_or_create(
+            user=user,
+            specialization=request.POST["specialization"],
+            qualification=request.POST["qualification"],
+            experience=request.POST["experience"],
+            phone=request.POST["phone"],
+            address=request.POST["address"],
+            city=request.POST["city"],
+            state=request.POST["state"],
+            country=request.POST["country"],
+            zip=request.POST["pincode"],
+            latitude=request.POST["latitude"],
+            longitude=request.POST["longitude"]
+        )
+
+        first_name, last_name = request.POST["name"].split(" ") if " " in request.POST["name"] else (request.POST["name"], "")
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+
+        return redirect(reverse("doctor"))
+    
+def approve_doctor(request, sub):
+    doctor = Doctor.objects.get(user__sub=sub)
+    doctor.user.is_doctor = True
+    doctor.user.save()
+    return redirect(reverse("admin"))
 
 def appointment_visited(request):
     print(request)

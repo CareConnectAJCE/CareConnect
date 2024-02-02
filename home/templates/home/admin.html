@@ -1,0 +1,84 @@
+{% extends 'home/layout.html' %}
+{% load static %}
+
+{% block profile %}
+    <p class="mt-3 mr-2">Hi, {{session.userinfo.name}}!</p>
+    <a style="margin-right: 10px;" class="btn_2 d-none d-lg-block" href="{% url 'index' %}">Home</a>
+    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .admin_dashboard{
+            margin: 10%;
+            min-height: 80vh;
+            font-family: Arial;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container admin_dashboard">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title
+                        ">Total Doctors</h5>
+                        <p class="card-text">{{total_doctors}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title
+                        ">Total Patients</h5>
+                        <p class="card-text">{{total_patients}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title
+                        ">Total Appointments</h5>
+                        <p class="card-text">{{total_appointments}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h3>Doctor Applications</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Specialization</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in doctor_applications %}
+                            <tr>
+                                <td>{{doctor.name}}</td>
+                                <td>{{doctor.email}}</td>
+                                <td>{{doctor.phone}}</td>
+                                <td>{{doctor.specialization}}</td>
+                                <td>
+                                    <a href="{% url 'approve_doctor' doctor.doctor_details.sub %}" class="btn btn-success">Approve</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
