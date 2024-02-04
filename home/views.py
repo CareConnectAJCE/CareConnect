@@ -137,7 +137,6 @@ def edit_user(request):
     # Handle other HTTP methods if needed
     return JsonResponse({'success': False, 'error_message': 'Invalid HTTP method'})
 
-
 def doctor_view(request):
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
     appointments = Appointment.objects.filter(doctor=user)
@@ -254,6 +253,9 @@ def appointment_deleted(request):
     appointment = Appointment.objects.get(id=appointment_id)
     appointment.delete()
     return redirect(reverse("patient"))
+
+def appointment(request):
+    pass
 
 # Landing pages views end
 

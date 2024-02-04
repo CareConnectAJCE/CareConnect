@@ -1,15 +1,51 @@
 from typing import Literal
 from operator import itemgetter
+import json
 
 # Langchain imports
-from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain_core.runnables import RunnableBranch, RunnablePassthrough, RunnableLambda
 from langchain.output_parsers.openai_functions import PydanticAttrOutputFunctionsParser
 from langchain.utils.openai_functions import convert_pydantic_to_openai_function
-from langchain_core.pydantic_v1 import BaseModel
+from langchain_core.pydantic_v1 import BaseModel, Field
+
+class FinalChat:
+    def __init__(self, user, memory, message):
+        self.user = user
+        self.memory = memory
+        self.message = message
+
+    def schedule_appointment(self):
+        model = ChatOpenAI(temperature=0.3)
+
+        class Schedule(BaseModel):
+            time: str = Field(description="Time the patient wants to schedule")
+            symptoms: list[str] = Field(description="The list of symptoms the patient has")
+            predicted_disease: str = Field(description="The disease the doctor thinks the patient has")
+
+        parser = JsonOutputParser(pydantic_object=Schedule)
+
+        prompt = PromptTemplate(
+            template="Answer the user query.\n{format_instructions}\n{query}\n",
+            input_variables=["query"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
+        )
+
+        chain = (
+            RunnablePassthrough.assign(
+                history=RunnableLambda(self.memory.load_memory_variables) | itemgetter("history")
+            )
+            | prompt
+            | model
+            | parser
+        )
+
+        response = chain.invoke({"query": self.message})
+        return response
+
 
 class Chat:
     def __init__(self, user):
@@ -32,7 +68,9 @@ class Chat:
         Time: Time the patient wants to schedule, Symptoms: The list of symptoms the patient has \
         and Predicted Disease: The disease the doctor thinks the patient has. \
         Try to use patients name in initial conversation. \
-        Reply with 'Bye!' if the patient is ending the chat. 
+        Reply with 'Bye!' if the patient is ending the chat. \
+        Reply with 'Schedule' if the patient wants to schedule an appointment \
+        and if the patient says yes to schedule.
         """
 
         general_prompt = f"""
@@ -102,6 +140,11 @@ class Chat:
 
         if "bye" in result.lower():
             return "Bye! Have a nice day😇"
+        
+        if "schedule" in result.lower():
+            chat = FinalChat(self.user, self.memory, user_message)
+            print(chat.schedule_appointment())
+            return "Starting your appointment scheduling process. Please wait for a moment."
         
         return result
     

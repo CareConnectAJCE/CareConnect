@@ -74,7 +74,7 @@
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
-        <div class="input-group-append" style="width: 80%;">
+        <div class="input-group-append" style="width: 94%;">
             <input id="textInput" type="text" class="form-control" name="msg" placeholder="Message" />
         </div>
     </div>     
@@ -105,6 +105,13 @@
                     // wait 3 seconds and reload the page
                     setTimeout(function() {
                         window.location.replace('/')
+                    }, 3000);
+                } else if (data.message == "Starting your appointment scheduling process. Please wait for a moment.") {
+                    // hide the component userInput
+                    $("#userInput").hide();
+                    // wait 3 seconds and redirect to the appointment page
+                    setTimeout(function() {
+                        window.location.replace('/appointment')
                     }, 3000);
                 }
             })

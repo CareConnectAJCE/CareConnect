@@ -14,6 +14,7 @@ urlpatterns = [
     path('patient/', views.patient_view, name='patient'),
     path('doctor/register/', views.doctor_registration, name='doctor_register'),
     path('doctor/approve/<str:sub>/', views.approve_doctor, name="approve_doctor"),
+    path('appointment/', views.appointment, name='appointment'),
     path('appointment/visited/', views.appointment_visited, name='mark_visited'),
     path('appointment/deleted/', views.appointment_deleted, name='mark_deleted'),
     path('chat/', views.chatbot_landing, name='chat'),
