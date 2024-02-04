@@ -4,7 +4,7 @@
 {% load static %}
 
 {% block profile %}
-    <p style="padding-right: 10px;">Hi, {{session.userinfo.name}}!</p>
+    <p class="mt-3 mr-2">Hi, {{session.userinfo.name}}!</p>
     <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
 {% endblock %}
 
@@ -26,17 +26,21 @@
                     <div class="card-body">
                         <div class="profile">
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-4 text-center">
                                     <img src="{{ session.userinfo.picture }}" alt="profile" class="img-fluid rounded-circle"/>
                                 </div>
-                                <div class="col-md-6">
-                                    <h4>{{ user.first_name }} {{ user.last_name }}</h4>
-                                    <p>{{ user.email }}</p>
-                                    <a href="#" class="btn_2 edit-profile-btn" data-toggle="modal" data-target="#editUserModal">Edit Profile</a>
+                                <div class="col-md-4">
+                                    <h4 class="mb-3">{{ user.first_name }} {{ user.last_name }}</h4>
+                                    <p class="mb-2">{{ user.email }}</p>
+                                    <a href="#" class="btn btn-primary edit-profile-btn" data-toggle="modal" data-target="#editUserModal">Edit Profile</a>
                                 </div>
-                                <div class="col-md-3">
-                                    <h4>Previous Patient Interactions</h4>
-                                    <p>{{ history|length }}</p>
+                                <div class="col-md-4">
+                                    <div class="card text-center">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Previous Patient Interactions</h5>
+                                            <p class="card-text display-4">{{ history|length }}</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -80,7 +84,7 @@
                 </div>
             </div>
         </div>
-        
+        <hr>
         <div class="row">
             <div class="col-md-12">
                 <h2 class="mb-4 mt-4">Upcoming Appointments</h2>
@@ -92,6 +96,7 @@
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Reason</th>
+                                <th>Remarks</th>
                                 <th>Mark Visited</th>
                             </tr>
                         </thead>
@@ -108,21 +113,24 @@
                                                 {{appointment.appointment_time|time:"g:i A"}}
                                             </td>
                                             <td>{{appointment.reason}}</td>
-                                            <td>
-                                                <form
-                                                    action="{% url 'mark_visited' %}"
-                                                    method="POST"
-                                                >
-                                                    {% csrf_token %}
+                                            <form
+                                                action="{% url 'mark_visited' %}"
+                                                method="POST"
+                                            >
+                                                {% csrf_token %}
+                                                <td>
+                                                    <input
+                                                        type="text"
+                                                        name="remarks"
+                                                        class="form-control"
+                                                        placeholder="Remarks"
+                                                    />
+                                                </td>
+                                                <td>
                                                     <input
                                                         type="hidden"
                                                         name="appointment_id"
                                                         value="{{appointment.id}}"
-                                                    />
-                                                    <input
-                                                        type="hidden"
-                                                        name="user_type"
-                                                        value="doctor"
                                                     />
                                                     <button
                                                         type="submit"
@@ -130,19 +138,21 @@
                                                     >
                                                         <i class="fa fa-check text-success"></i>
                                                     </button>
-                                                </form>
-                                            </td>
+                                                </td>
+                                            </form>
+
                                         </tr>
                                     {% endif %} 
                                 {% endfor %} 
                             {% else %}
                                 <tr>
-                                    <td colspan="5">No upcoming appointments</td>
+                                    <td colspan="6">No upcoming appointments</td>
                                 </tr>
                             {% endif %}
                         </tbody>
                     </table>
                 </div>
+                <hr>
                 <h2 class="mb-4 mt-4">History</h2>
                 <div class="table-responsive">
                     <table class="table text-center">
@@ -152,6 +162,7 @@
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Reason</th>
+                                <th>Remarks</th>
                                 <th>Visited Time</th>
                             </tr>
                         </thead>
@@ -170,6 +181,7 @@
                                             {{appointment.appointment_time|time:"g:i A"}}
                                         </td>
                                         <td>{{appointment.reason}}</td>
+                                        <td>{{appointment.remarks}}</td>
                                         <td>
                                             {{appointment.visited_time|date:"Y-m-d g:i A"}}
                                         </td>
@@ -177,7 +189,7 @@
                                 {% endfor %} 
                             {% else %}
                                 <tr>
-                                    <td colspan="5">No history</td>
+                                    <td colspan="6">No history</td>
                                 </tr>
                             {% endif %}
                         </tbody>

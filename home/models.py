@@ -29,6 +29,7 @@ class Appointment(models.Model):
     reason = models.TextField()
     visited = models.BooleanField(default=False)
     visited_time = models.DateTimeField(null=True)
+    doctor_remarks = models.TextField(null=True)
 
     def __str__(self):
         return f"{self.user.username} -> {self.doctor.username} ({self.appointment_time}) for {self.reason}"

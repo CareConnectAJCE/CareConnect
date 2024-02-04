@@ -94,6 +94,8 @@ def logout(request):
 def index(request):
     if request.session.get("user"):
         user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+        if (user.is_superuser):
+            return redirect(reverse("admin"))
     else:
         user = None
     return render(
@@ -196,6 +198,7 @@ def patient_view(request):
 
 def doctor_registration(request):
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    doctor = Doctor.objects.filter(user=user)
     if request.method == "GET":
         return render(
             request,
@@ -204,10 +207,15 @@ def doctor_registration(request):
                 "session": request.session.get("user"),
                 "user": user,
                 "pretty": json.dumps(request.session.get("user"), indent=4),
+                "applied": True if doctor else False,
             },
         )
-    else:
-        Doctor.objects.get_or_create(
+    else:       
+        first_name, last_name = request.POST["name"].split(" ") if " " in request.POST["name"] else (request.POST["name"], "")
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+        doctor = Doctor.objects.get_or_create(
             user=user,
             specialization=request.POST["specialization"],
             qualification=request.POST["qualification"],
@@ -221,13 +229,9 @@ def doctor_registration(request):
             latitude=request.POST["latitude"],
             longitude=request.POST["longitude"]
         )
-
-        first_name, last_name = request.POST["name"].split(" ") if " " in request.POST["name"] else (request.POST["name"], "")
-        user.first_name = first_name
-        user.last_name = last_name
-        user.save()
-
-        return redirect(reverse("doctor"))
+        print(doctor)
+        doctor[0].save()
+        return redirect(reverse("doctor_register"))
     
 def approve_doctor(request, sub):
     doctor = Doctor.objects.get(user__sub=sub)
@@ -236,14 +240,14 @@ def approve_doctor(request, sub):
     return redirect(reverse("admin"))
 
 def appointment_visited(request):
-    print(request)
     appointment_id = request.POST["appointment_id"]
-    user_type = request.POST["user_type"]
+    remarks = request.POST["remarks"]
     appointment = Appointment.objects.get(id=appointment_id)
     appointment.visited = True
     appointment.visited_time = timezone.now()
+    appointment.doctor_remarks = remarks
     appointment.save()
-    return redirect(reverse(user_type))
+    return redirect(reverse("doctor"))
 
 def appointment_deleted(request):
     appointment_id = request.POST["appointment_id"]

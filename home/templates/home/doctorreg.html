@@ -52,143 +52,162 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container doctor_reg">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section_tittle text-center">
-                    <h2>Doctor Registration</h2>
+    {% if applied %}
+        <div class="container doctor_reg">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section_tittle text-center">
+                        <h2>Doctor Registration</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="alert alert-success" role="alert">
+                        Your application has been submitted successfully. We will get back to you soon.
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <form action="{% url 'doctor_register' %}" method="post">
-                    {% csrf_token %}
-                    <div class="col-lg-12">
-                        <div class="text-left">
-                            <h4>Doctor Details</h4>
-                        </div>
+    {% else %}
+        <div class="container doctor_reg">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section_tittle text-center">
+                        <h2>Doctor Registration</h2>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="form-group mt-3">
-                                <input type="text" class="form-control" id="name" name="name" placeholder="Name" value={{user.first_name}} required>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="email" name="email" placeholder="Email" value={{user.email}} required>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" required>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group mt-3">
-                                <input type="text" class="form-control" id="qualification" name="qualification" placeholder="Qualification" required>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="specialization" name="specialization" placeholder="Specialization" required>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="number" class="form-control" id="experience" name="experience" placeholder="Experience" required>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <form action="{% url 'doctor_register' %}" method="post">
+                        {% csrf_token %}
                         <div class="col-lg-12">
                             <div class="text-left">
-                                <h4>Hospital Details</h4>
+                                <h4>Doctor Details</h4>
                             </div>
                         </div>
-                        <div class="col-lg-12">
-                            <div class="form-group
-                            mt-3">
-                                <input type="textarea" class="form-control" id="address" name="address" placeholder="Hospital Address" required>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group mt-3">
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Name" value={{user.first_name}} required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="country" name="country" placeholder="Country" required>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="text" class="form-control" id="email" name="email" placeholder="Email" value={{user.email}} required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                            <div class="col-lg-6">
+                                <div class="form-group mt-3">
+                                    <input type="text" class="form-control" id="qualification" name="qualification" placeholder="Qualification" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group
-                            mt-3">
-                                <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode" required>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="text" class="form-control" id="specialization" name="specialization" placeholder="Specialization" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="text-left">
-                                <h4>Location</h4>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="number" class="form-control" id="experience" name="experience" placeholder="Experience" required>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <!-- add hidden inputs to store latitude and longitude of the user -->
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="latitude" name="latitude" value="" placeholder="Latitude" required>
+                            <div class="col-lg-12">
+                                <div class="text-left">
+                                    <h4>Hospital Details</h4>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="longitude" name="longitude" value="" placeholder="Longitude" required>
+                            <div class="col-lg-12">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="textarea" class="form-control" id="address" name="address" placeholder="Hospital Address" required>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <!-- add a button that calls getLocation function -->
-                            <button class="btn_1" onclick="getLocation(event)">Get Location</button>
-                        </div>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="text" class="form-control" id="country" name="country" placeholder="Country" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group
+                                mt-3">
+                                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="text-left">
+                                    <h4>Location</h4>
+                                </div>
+                            </div>
+                            
+                            <!-- add hidden inputs to store latitude and longitude of the user -->
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="latitude" name="latitude" value="" placeholder="Latitude" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="longitude" name="longitude" value="" placeholder="Longitude" required>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <!-- add a button that calls getLocation function -->
+                                <button class="btn_1" onclick="getLocation(event)">Get Location</button>
+                            </div>
 
-                        <div class="card shadow w-100 mt-4" id="map-container">
-                            <div class="card-body mt-5">
-                                <div class="card-text w-100 h-100">
-                                    <iframe id="map" frameborder="0" style="border:0;" allowfullscreen></iframe>
+                            <div class="card shadow w-100 mt-4" id="map-container">
+                                <div class="card-body mt-5">
+                                    <div class="card-text w-100 h-100">
+                                        <iframe id="map" frameborder="0" style="border:0;" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-12 mt-4 text-center">
+                                <div class="form-group
+                                mt-3">
+                                    <button 
+                                        type="submit"
+                                        class="btn_1"
+                                    >
+                                        Register
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="col-lg-12 mt-4 text-center">
-                            <div class="form-group
-                            mt-3">
-                                <button 
-                                    type="submit"
-                                    class="btn_1"
-                                >
-                                    Register
-                                </button>
-                            </div>
-                        </div>
+                    </form>
+                    <div id="loading" class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <p>Loading...</p>
                     </div>
-                </form>
-                <div id="loading" class="loading-container">
-                    <div class="loading-spinner"></div>
-                    <p>Loading...</p>
                 </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block extra_js %}
