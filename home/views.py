@@ -196,11 +196,13 @@ def patient_view(request):
     )
 
 def save_user_location(request):
-    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
-    user.latitude = request.POST["latitude"]
-    user.longitude = request.POST["longitude"]
-    user.save()
-    return JsonResponse({"success": True})
+    if request.method == "POST":
+        data = json.loads(request.body.decode("utf-8"))
+        user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+        user.latitude = data["lat"]
+        user.longitude = data["lng"]
+        user.save()
+        return JsonResponse({"success": True})
 
 def doctor_registration(request):
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
@@ -235,7 +237,7 @@ def doctor_registration(request):
             latitude=request.POST["latitude"],
             longitude=request.POST["longitude"]
         )
-        print(doctor)
+
         doctor[0].save()
         return redirect(reverse("doctor_register"))
     
@@ -276,7 +278,7 @@ def appointment(request):
         return redirect(reverse("patient"))
     else:
         report = Report.objects.filter(user__sub=request.session["user"]["userinfo"]["sub"]).last()
-        symptoms = json.loads(report.symptoms)
+        symptoms = report.symptoms.split(",")
         possible_symptoms = get_possible_symptoms(symptoms)
         return render(
             request,

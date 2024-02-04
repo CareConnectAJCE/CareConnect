@@ -25,7 +25,7 @@ class FinalChat:
     def save_report(self, response):
         report = Report.objects.create(
             user=self.user,
-            symptoms=json.dumps(response.symptoms),
+            symptoms=",".join(response.symptoms),
         )
         report.save()
 
@@ -56,6 +56,7 @@ class FinalChat:
 
         response = chain.invoke({"query": self.message})
         self.save_report(response)
+        return "Your appointment has been scheduled. Please wait for a moment."
 
 class Chat:
     def __init__(self, user):
@@ -67,7 +68,6 @@ class Chat:
         The following is a conversation with a doctor. The doctor is helping the patient with their health issues. \
         The patient is {self.user.first_name} {self.user.last_name}. \
         The doctor is a very helpful, loyal and friendly person. \
-        The doctor is very good at his job. \
         The doctor keeps track of the symptoms of the patient. \
         The doctor makes sure that the patient is calm and won't tell the patient directly about \
         the seriousness of the disease or what the disease is. \
@@ -75,12 +75,10 @@ class Chat:
         The doctor would suggest the patient to go to the hospital if its a major disease \
         and asks if the patient needs to schedule a session with the doctor. \
         If the patient says yes, you should generate a json with the following format: \
-        Time: Time the patient wants to schedule, Symptoms: The list of symptoms the patient has \
-        and Predicted Disease: The disease the doctor thinks the patient has. \
         Try to use patients name in initial conversation. \
         Reply with 'Bye!' if the patient is ending the chat. \
         Reply with 'Schedule' if the patient wants to schedule an appointment \
-        and if the patient says yes to schedule.
+        and if the patient says yes to schedule after you ask that to patient.
         """
 
         general_prompt = f"""
@@ -162,7 +160,7 @@ def get_possible_symptoms(symptoms):
     model = ChatOpenAI(temperature=0.3)
 
     class Symptoms(BaseModel):
-        symptoms: list[str] = Field(description="The list of symptoms the patient has")
+        symptoms: list[str] = Field(description="The list of other symptoms the patient might have")
 
     parser = JsonOutputParser(pydantic_object=Symptoms)
 
@@ -178,7 +176,7 @@ def get_possible_symptoms(symptoms):
         | parser
     )
 
-    response = chain.invoke({"query": symptoms})
+    response = chain.invoke({"query": ",".join(symptoms)})
     return response.symptoms
 
 def suitable_doctor_symptom(symptoms, latitude, longitude):
