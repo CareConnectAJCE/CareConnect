@@ -1,0 +1,148 @@
+{% extends 'home/layout.html' %}
+{% load static %}
+
+{% block profile %}
+    <p class="mt-3 mr-2">Hi, {{session.userinfo.name}}!</p>
+    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
+{% endblock %}
+
+{% block extra_css %}
+    <!-- Custom CSS for the loading spinner -->
+    <style>
+        .loading-spinner {
+            display: none;
+        }
+
+        .loading-spinner.show {
+            display: inline-block;
+        }
+        .appointment {
+            margin: 10%;
+            min-height: 60vh;
+            font-family: Arial;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container appointment">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Symptom Checker</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <!-- Add loading spinner here -->
+                            <div class="spinner-border text-primary loading-spinner" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+
+                        <!-- Display List of Symptoms -->
+                        <div id="symptomsList">
+                            <h6 class="card-subtitle mb-2 text-muted">Your Symptoms:</h6>
+                            <ul id="selectedSymptoms">
+                                {% if symptoms %}
+                                    {% for symptom in symptoms %}
+                                        <li>{{ symptom }}</li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <!-- Input for Additional Symptoms -->
+                        <div class="form-group mt-3">
+                            <label for="additionalSymptom">Do you have any other symptoms?</label>
+                            <div id="checkboxContainer">
+                                {% if possible_symptoms %}    
+                                    {% for symptom in possible_symptoms %}
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="{{ symptom }}" name="symptoms" value="{{ symptom }}">
+                                            <label class="form-check-label" for="{{ symptom }}">{{ symptom }}</label>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+
+                        <!-- Button to Add Custom Symptom -->
+                        <button type="button" class="btn btn-secondary" onclick="addCustomSymptom()">Add Symptom</button>
+
+                        <!-- Doctor Appointment Section (Hidden by default) -->
+                        <div id="doctorAppointmentSection" class="mt-4 d-none">
+                            <h6 class="card-subtitle mb-2 text-muted">Choose Appointment Time:</h6>
+                            <!-- Add options for appointment times from the API response -->
+                            <select class="form-control" id="appointmentTime" name="appointmentTime">
+                                <!-- Options will be dynamically populated after submitting symptoms -->
+                            </select>
+
+                            <!-- Button to Schedule Appointment -->
+                            <button type="button" class="btn btn-success mt-3" onclick="scheduleAppointment()">Schedule Appointment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Simulate loading completion (replace this with actual API call)
+        setTimeout(function () {
+            // Hide the loading spinner after loading completion
+            document.querySelector('.loading-spinner').classList.remove('show');
+            
+            // Show the doctorAppointmentSection after loading completion
+            document.getElementById('doctorAppointmentSection').classList.remove('d-none');
+            
+            // Dynamically generate checkboxes from a list of possible symptoms
+            const possibleSymptoms = ["Headache", "Fatigue", "Nausea", "Muscle Pain"];
+            const checkboxContainer = document.getElementById('checkboxContainer');
+
+            for (const symptom of possibleSymptoms) {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.name = 'symptoms';
+                checkbox.value = symptom;
+                checkbox.id = `checkbox_${symptom.replace(/\s+/g, '_')}`;
+
+                const label = document.createElement('label');
+                label.htmlFor = `checkbox_${symptom.replace(/\s+/g, '_')}`;
+                label.appendChild(document.createTextNode(symptom));
+
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(label);
+                checkboxContainer.appendChild(document.createElement('br'));
+            }
+        }, 2000); // Simulated 2-second delay, replace with actual delay
+    });
+
+    function addCustomSymptom() {
+        // Get the value from the additionalSymptom input
+        const customSymptom = document.getElementById('additionalSymptom').value.trim();
+
+        // Check if the customSymptom is not empty
+        if (customSymptom) {
+            // Add the customSymptom to the list
+            const selectedSymptomsList = document.getElementById('selectedSymptoms');
+            const li = document.createElement('li');
+            li.textContent = customSymptom;
+            selectedSymptomsList.appendChild(li);
+
+            // Clear the input field
+            document.getElementById('additionalSymptom').value = '';
+        }
+    }
+
+    function scheduleAppointment() {
+        // TODO: Add logic to send selected appointment time to API for scheduling
+        // Display success message or handle errors accordingly
+        alert('Appointment scheduled successfully!');
+    }
+</script>
+{% endblock %}

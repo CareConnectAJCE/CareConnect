@@ -50,6 +50,33 @@
         border-radius: 5px;
         display: inline-block;
     }
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, 0.8);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %} 
 
@@ -78,12 +105,58 @@
             <input id="textInput" type="text" class="form-control" name="msg" placeholder="Message" />
         </div>
     </div>     
+    <div id="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 
 <script>
+    var loadingScreen = document.getElementById("loading");
+    loadingScreen.style.display = "none"
+
+    function showLoading() {
+        loadingScreen.style.display = "block";
+    }
+
+    function hideLoading() {
+        loadingScreen.style.display = "none";
+    }
+
+    function getLocation() {
+        showLoading();
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Please enable location services to proceed.");
+            window.location.replace('/');
+        }
+    }
+
+    function showPosition(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // save the lat and lng in user's model in the backend
+        fetch('/patient/location/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf }}'
+            },
+            body: JSON.stringify({ lat: lat, lng: lng })    
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+        })
+
+    }
+    getLocation();
+
     function getBotResponse() {
         var rawText = $("#textInput").val();
         var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";

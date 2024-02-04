@@ -3,8 +3,8 @@ import json
 from urllib.parse import quote_plus, urlencode
 
 # Utils and Models import
-from .models import Conversation, Appointment, Doctor
-from .utils import Chat
+from .models import Conversation, Appointment, Doctor, Report
+from .utils import Chat, get_possible_symptoms, suitable_doctor_symptom
 
 # OpenAI imports
 from openai import OpenAI
@@ -195,6 +195,13 @@ def patient_view(request):
         },
     )
 
+def save_user_location(request):
+    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    user.latitude = request.POST["latitude"]
+    user.longitude = request.POST["longitude"]
+    user.save()
+    return JsonResponse({"success": True})
+
 def doctor_registration(request):
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
     doctor = Doctor.objects.filter(user=user)
@@ -255,7 +262,40 @@ def appointment_deleted(request):
     return redirect(reverse("patient"))
 
 def appointment(request):
-    pass
+    if request.method == "POST":
+        user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+        doctor = User.objects.get(sub=request.POST["doctor"])
+        appointment = Appointment.objects.create(
+            user=user,
+            doctor=doctor,
+            appointment_time=request.POST["appointment_time"],
+            symptoms=request.POST["symptoms"],
+            scheduled_time=request.POST["scheduled_time"]
+        )
+        appointment.save()
+        return redirect(reverse("patient"))
+    else:
+        report = Report.objects.filter(user__sub=request.session["user"]["userinfo"]["sub"]).last()
+        symptoms = json.loads(report.symptoms)
+        possible_symptoms = get_possible_symptoms(symptoms)
+        return render(
+            request,
+            "home/appointment.html",
+            context={
+                "symptoms": symptoms,
+                "possible_symptoms": possible_symptoms,
+                "session": request.session.get("user"),
+                "pretty": json.dumps(request.session.get("user"), indent=4),
+            },
+        )
+    
+def predict_doctor_symptom(request):
+    symptoms = request.GET.get("symptoms")
+    response = suitable_doctor_symptom(symptoms, )
+    return JsonResponse({
+        "doctors": response.doctor_id,
+        "predicted_disease": response.predicted_disease,
+    })
 
 # Landing pages views end
 

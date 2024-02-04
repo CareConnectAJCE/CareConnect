@@ -4,6 +4,8 @@ from django.db import models
 class User(AbstractUser):
     sub = models.CharField(max_length=255, unique=True)
     is_doctor = models.BooleanField(default=False)
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
 
     def __str__(self):
         return self.username
@@ -42,3 +44,14 @@ class Conversation(models.Model):
     def __str__(self):
         sender = "User" if self.is_user_message else "Bot"
         return f"{sender}: {self.message_content} (User: {self.user.username})"
+    
+class Report(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="report_user")
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="report_doctor")
+    predicted_disease = models.CharField(max_length=255, null=True)
+    symptoms = models.TextField(null=True)
+    scheduled_time = models.DateTimeField(null=True)
+    prescription = models.TextField(null=True)
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.doctor.username} ({self.scheduled_time}) for {self.predicted_disease}"
