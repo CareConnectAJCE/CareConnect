@@ -40,6 +40,7 @@ class Conversation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_user_message = models.BooleanField()
     message_content = models.TextField()
+    session_id = models.CharField(max_length=255)
 
     def __str__(self):
         sender = "User" if self.is_user_message else "Bot"

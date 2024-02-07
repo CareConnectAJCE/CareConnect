@@ -1,5 +1,6 @@
 # Required imports
 import json
+import random
 from urllib.parse import quote_plus, urlencode
 
 # Utils and Models import
@@ -305,7 +306,8 @@ def predict_doctor_symptom(request):
 def chatbot_landing(request):
     global chat
     try:
-        chat = Chat(User.objects.get(sub=request.session["user"]["userinfo"]["sub"]))
+        random_no = random.randint(10000, 99999)
+        chat = Chat(User.objects.get(sub=request.session["user"]["userinfo"]["sub"]), random_no)
     except Exception as e:
         print(e)
         return redirect(reverse("index"))
@@ -317,8 +319,5 @@ def chatbot_landing(request):
 def get_bot_response(request):
     user_message = request.GET.get('msg')
     response = chat.get_bot_response(user_message)
-
-    Conversation.objects.create(user=chat.user, is_user_message=True, message_content=user_message)
-    Conversation.objects.create(user=chat.user, is_user_message=False, message_content=response)
 
     return JsonResponse({'message': response})

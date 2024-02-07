@@ -1,6 +1,5 @@
 from typing import Literal
 from operator import itemgetter
-import json
 import math
 
 # Langchain imports
@@ -17,18 +16,29 @@ from langchain.globals import set_verbose
 set_verbose(True)
 
 # Models import
-from .models import Report, Doctor
+from .models import Report, Doctor, Conversation
 
 class FinalChat:
-    def __init__(self, user, memory, message):
+    def __init__(self, user, message, random_no):
         self.user = user
-        self.memory = memory
         self.message = message
+        self.random_no = random_no
+        self.memory = ConversationBufferMemory(return_messages=True)
+        self.memory.load_memory_variables({})
+
+        _input_conversation = Conversation.objects.filter(user=self.user, session_id=self.random_no, is_user_message=True).order_by('id')
+        _output_conversation = Conversation.objects.filter(user=self.user, session_id=self.random_no, is_user_message=False).order_by('id')
+
+        for i in range(len(_input_conversation)):
+            self.memory.save_context({"input": _input_conversation[i].message_content}, {"output": _output_conversation[i].message_content})
+
+        print(self.memory)
 
     def save_report(self, response):
         report = Report.objects.create(
             user=self.user,
-            symptoms=",".join(response.symptoms),
+            symptoms=",".join(response["symptoms"]) if len(response["symptoms"]) > 0 else "",
+            predicted_disease=response["predicted_disease"]
         )
         report.save()
 
@@ -36,7 +46,6 @@ class FinalChat:
         model = ChatOpenAI(temperature=0.3)
 
         class Schedule(BaseModel):
-            time: str = Field(description="Time the patient wants to schedule")
             symptoms: list[str] = Field(description="The list of symptoms the patient has")
             predicted_disease: str = Field(description="The disease the doctor thinks the patient has")
 
@@ -58,15 +67,17 @@ class FinalChat:
         )
 
         response = chain.invoke({"query": self.message})
+
         self.save_report(response)
-        return "Your appointment has been scheduled. Please wait for a moment."
+        return "Starting your appointment scheduling process. Please wait for a moment."
 
 class Chat:
-    def __init__(self, user):
+    def __init__(self, user, random_no):
         self.user = user
         self.memory = ConversationBufferMemory(return_messages=True)
+        self.random_no = random_no
         self.memory.load_memory_variables({})
-        print(self.user.first_name, self.user.last_name)
+
         main_prompt = f"""
         The following is a conversation with a doctor. The doctor is helping the patient with their health issues. \
         The patient is {self.user.first_name} {self.user.last_name}. \
@@ -162,22 +173,26 @@ class Chat:
 
     def get_bot_response(self, user_message):
         if "bye" in user_message.lower():
-            return "Bye! Have a nice day😇"
+            response = "Bye! Have a nice day😇"
+            self.memory.save_context(context, {"output": response})
+        else:
+            context = {"input": user_message}
+            result = self.final_chain.invoke(context)
 
-        context = {"input": user_message}
-        result = self.final_chain.invoke(context)
+            self.memory.save_context(context, {"output": result})
 
-        self.memory.save_context(context, {"output": result})
+            if "bye" in result.lower():
+                response = "Bye! Have a nice day😇"
+            elif "i will schedule now!" in result.lower():
+                chat = FinalChat(self.user, "What all symptoms do I have? And what is the predicted disease?", self.random_no)
+                response = chat.schedule_appointment()
+            else:
+                response = result
+            
+            Conversation.objects.create(user=self.user, is_user_message=True, message_content=user_message, session_id=self.random_no)
+            Conversation.objects.create(user=self.user, is_user_message=False, message_content=response, session_id=self.random_no)
 
-        if "bye" in result.lower():
-            return "Bye! Have a nice day😇"
-        
-        if "i will schedule now!" in result.lower():
-            chat = FinalChat(self.user, self.memory, user_message)
-            print(chat.schedule_appointment())
-            return "Starting your appointment scheduling process. Please wait for a moment."
-        
-        return result
+        return response
     
 def get_possible_symptoms(symptoms):
     model = ChatOpenAI(temperature=0.3)
@@ -200,7 +215,7 @@ def get_possible_symptoms(symptoms):
     )
 
     response = chain.invoke({"query": ",".join(symptoms)})
-    return response.symptoms
+    return response["symptoms"]
 
 def suitable_doctor_symptom(symptoms, latitude, longitude):
     doctors = Doctor.objects.all()
