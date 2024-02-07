@@ -71,14 +71,16 @@ class Chat:
         The doctor keeps track of the symptoms of the patient. \
         The doctor makes sure that the patient is calm and won't tell the patient directly about \
         the seriousness of the disease or what the disease is. \
-        The doctor would suggest the patient with some home remedies if its a minor disease. \
+        The doctor would suggest the patient with some home remedies if its a minor disease \
+        or schedule an appointment for the patient. \
         The doctor would suggest the patient to go to the hospital if its a major disease \
         and asks if the patient needs to schedule a session with the doctor. \
-        If the patient says yes, you should generate a json with the following format: \
         Try to use patients name in initial conversation. \
         Reply with 'Bye!' if the patient is ending the chat. \
-        Reply with 'Schedule' if the patient wants to schedule an appointment \
-        and if the patient says yes to schedule after you ask that to patient.
+        Reply with 'I will schedule now!' if the patient wants to schedule an appointment. \
+        Don't ask any other questions if the patient wants to schedule an appointment, just say \
+        'I will schedule now!' nothing more and nothing less. \
+        You should only respond 'I will schedule now!' if the patient wants to schedule an appointment.
         """
 
         general_prompt = f"""
@@ -93,7 +95,15 @@ class Chat:
         Reply with 'Bye!' if the patient is ending the chat. 
         """
 
-        general_prompt = ChatPromptTemplate.from_messages(
+        schedule_prompt = f"""
+        You are an appointment scheduler that helps people to schedule appointments. \
+        Reply only with 'I will schedule now!' if the patient wants to schedule an appointment \
+        and if the patient says yes to schedule after you ask that to patient. \
+        Don't ask any other questions if the patient wants to schedule an appointment, just say \
+        'I will schedule now!' nothing more and nothing less. 
+        """
+
+        general_prompt_template = ChatPromptTemplate.from_messages(
             [
                 ("system", general_prompt),
                 MessagesPlaceholder(variable_name="history"),
@@ -101,7 +111,7 @@ class Chat:
             ]
         )
 
-        doctor_prompt = ChatPromptTemplate.from_messages(
+        doctor_prompt_template = ChatPromptTemplate.from_messages(
             [
                 ("system", main_prompt),
                 MessagesPlaceholder(variable_name="history"),
@@ -109,15 +119,24 @@ class Chat:
             ]
         )
 
+        schedule_prompt_template = ChatPromptTemplate.from_messages(
+            [
+                ("system", schedule_prompt),
+                MessagesPlaceholder(variable_name="history"),
+                ("human", "{input}")
+            ]
+        )
+
         prompt = RunnableBranch(
-            (lambda x: x['topic'] == 'patient query', doctor_prompt),
-            general_prompt
+            (lambda x: x['topic'] == 'patient query', doctor_prompt_template),
+            (lambda x: x['topic'] == 'schedule appointment query', schedule_prompt_template),
+            general_prompt_template
         )
 
         class TopicClassifier(BaseModel):
             "Classify the topic of the user question"
-            topic: Literal['general', 'patient query']
-            "The topic of the user question. One of 'patient query' or 'general'."
+            topic: Literal['general', 'patient query', 'schedule appointment query']
+            "The topic of the user question. One of 'patient query' or 'general' or 'schedule query'."
 
         classifier_function = convert_pydantic_to_openai_function(TopicClassifier)
 
@@ -149,7 +168,7 @@ class Chat:
         if "bye" in result.lower():
             return "Bye! Have a nice day😇"
         
-        if "schedule" in result.lower():
+        if "schedule" in result.lower() and "?" not in result:
             chat = FinalChat(self.user, self.memory, user_message)
             print(chat.schedule_appointment())
             return "Starting your appointment scheduling process. Please wait for a moment."
