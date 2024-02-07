@@ -4,9 +4,9 @@ CareConnect is a semester 8 project, designed to act as a sympathetic medical ch
 
 ---
 
-**Installation:**
+## **Installation:**
 
-To run CareConnect, follow these steps:
+### To run CareConnect, follow these steps:
 
 1. Clone this repository to your local machine.
 2. Navigate to the MainProject directory.
@@ -20,37 +20,27 @@ To run CareConnect, follow these steps:
 6. Initialise the env file:
     - Run ```cp dotenv .env```
     - Copy the credentials from the Auth0 application and fill it in the placeholders
-7. Start the Django development server using the command `python manage.py runserver`.
-8. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+7. Create migrations using the command `python manage.py makemigrations`
+8. Migrate all the migrations to the model using the command `python manage.py migrate`
+9. Start the Django development server using the command `python manage.py runserver`.
+19. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-Returning users:
+### Returning users:
 
 1. Activate the venv
-2. Run the server
+2. Make migrations
+3. Migrate the changes
+4. Run the server
 
-Exit the app:
+### Exit the app:
 
 1. Use keyboard interrupt to exit the Django server: 
     - ```ctrl + C```
 2. Deactivate the venv:
     - ```deactivate```
 
-<!-- 
----
 
-**Usage:**
-
-1. Visit the homepage and interact with the chatbot.
-2. Describe your medical issue in detail.
-3. The chatbot will generate a comprehensive report.
-4. Review the report and confirm the submission.
-5. The system will recommend a suitable doctor for your case.
-6. The report will be sent to the designated doctor, along with your contact details and available time slots.
-7. The doctor will reach out to schedule a consultation. -->
-
----
-
-**Contributing:**
+# **Contributing:**
 
 If you'd like to contribute to CareConnect, please follow these steps:
 
@@ -62,16 +52,16 @@ If you'd like to contribute to CareConnect, please follow these steps:
 
 ---
 
-**License:**
+# **License:**
 
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-**Contact:**
+# **Contact:**
 
 For further information or inquiries, please contact:
 
-- [Zameel Hassan](mailto:zameelhassan2024@cs.ajce.in)
+- [CareConnect](mailto:careconnect.ajce@gmail.com)
 
 ---
