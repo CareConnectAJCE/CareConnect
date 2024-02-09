@@ -287,8 +287,8 @@ def appointment(request):
             request,
             "home/appointment.html",
             context={
-                "symptoms": symptoms,
-                "possible_symptoms": possible_symptoms,
+                "symptoms": [symptom.capitalize() for symptom in symptoms],
+                "possible_symptoms": [symptom.capitalize() for symptom in possible_symptoms],
                 "session": request.session.get("user"),
                 "pretty": json.dumps(request.session.get("user"), indent=4),
             },
