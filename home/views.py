@@ -56,6 +56,8 @@ def callback(request):
     user, created = User.objects.get_or_create(sub=sub, defaults={
         'email': user_info.get('email', ''),
         'sub': sub,
+        'first_name': user_info.get('given_name', ''),
+        'last_name': user_info.get('family_name', ''),
     })
 
     if not created:
