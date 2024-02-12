@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block profile %}
-<p class="mt-3 mr-2">Hi, {{user.first_name}} {{user.last_name}}!</p>
+    <p class="mt-3 mr-2">Hi, {{user.first_name}} {{user.last_name}}!</p>
     <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
 {% endblock %}
 
@@ -46,7 +46,7 @@
                             <ul id="selectedSymptoms">
                                 {% if symptoms %}
                                     {% for symptom in symptoms %}
-                                        <li>{{ symptom }}</li>
+                                        <li id="currentSymptoms">{{ symptom }}</li>
                                     {% endfor %}
                                 {% endif %}
                             </ul>
@@ -59,7 +59,7 @@
                                 {% if possible_symptoms %}    
                                     {% for symptom in possible_symptoms %}
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="{{ symptom }}" name="symptoms" value="{{ symptom }}">
+                                            <input type="checkbox" class="form-check-input additionalSymptomsList" id="{{ symptom }}" name="symptoms" value="{{ symptom }}">
                                             <label class="form-check-label" for="{{ symptom }}">{{ symptom }}</label>
                                         </div>
                                     {% endfor %}
@@ -69,6 +69,7 @@
 
 
                         <!-- Button to Add Custom Symptom -->
+                        {% csrf_token %}
                         <button type="button" class="btn btn-secondary" onclick="addCustomSymptom()">Add Symptom</button>
 
                         <!-- Doctor Appointment Section (Hidden by default) -->
@@ -91,58 +92,55 @@
 
 {% block extra_js %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Simulate loading completion (replace this with actual API call)
-        setTimeout(function () {
-            // Hide the loading spinner after loading completion
-            document.querySelector('.loading-spinner').classList.remove('show');
-            
-            // Show the doctorAppointmentSection after loading completion
-            document.getElementById('doctorAppointmentSection').classList.remove('d-none');
-            
-            // Dynamically generate checkboxes from a list of possible symptoms
-            // const possibleSymptoms = ["Headache", "Fatigue", "Nausea", "Muscle Pain"];
-            // const checkboxContainer = document.getElementById('checkboxContainer');
-
-            for (const symptom of possibleSymptoms) {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.name = 'symptoms';
-                checkbox.value = symptom;
-                checkbox.id = `checkbox_${symptom.replace(/\s+/g, '_')}`;
-
-                const label = document.createElement('label');
-                label.htmlFor = `checkbox_${symptom.replace(/\s+/g, '_')}`;
-                label.appendChild(document.createTextNode(symptom));
-
-                checkboxContainer.appendChild(checkbox);
-                checkboxContainer.appendChild(label);
-                checkboxContainer.appendChild(document.createElement('br'));
-            }
-        }, 2000); // Simulated 2-second delay, replace with actual delay
-    });
+    let doctorId = null;
 
     function addCustomSymptom() {
-        // Get the value from the additionalSymptom input
-        const customSymptom = document.getElementById('additionalSymptom').value.trim();
+        // Get all the values from the additional symptoms that is selected
+        let symptoms = "";
 
-        // Check if the customSymptom is not empty
-        if (customSymptom) {
-            // Add the customSymptom to the list
-            const selectedSymptomsList = document.getElementById('selectedSymptoms');
-            const li = document.createElement('li');
-            li.textContent = customSymptom;
-            selectedSymptomsList.appendChild(li);
+        // load symptoms with the current symptoms which are list items
+        const currentSymptoms = document.getElementById('selectedSymptoms').getElementsByTagName('li');
+        for (const symptom of currentSymptoms)
+            symptoms += symptom.textContent + ',';
 
-            // Clear the input field
-            document.getElementById('additionalSymptom').value = '';
-        }
+        const additionalSymptoms = document.getElementsByClassName('additionalSymptomsList');
+        for (const symptom of additionalSymptoms)
+            if (symptom.isChecked)
+                symptoms += symtom.textContent + ',';
+        getDoctor(symptoms)
     }
 
     function scheduleAppointment() {
-        // TODO: Add logic to send selected appointment time to API for scheduling
-        // Display success message or handle errors accordingly
         alert('Appointment scheduled successfully!');
+    }
+
+    function getDoctor(symptoms) {
+            console.log(symptoms);
+            fetch(`/predict/doctor`, {
+                method: 'POST',
+                body: symptoms,
+                headers: {
+                    'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
+                }
+            })
+            .then(data => {
+                // Handle response, e.g., populate appointment times
+                console.log('Success:', data);
+                doctorId = data.doctor_id;
+                const appointmentTimes = data.available_times;
+                const appointmentTimeSelect = document.getElementById('appointmentTime');
+                for (const time of appointmentTimes) {
+                    const option = document.createElement('option');
+                    option.value = time;
+                    option.textContent = time;
+                    appointmentTimeSelect.appendChild(option);
+                }
+            })
+            .catch(error => {
+                // Handle error, e.g., display error message
+                console.error('There was a problem with the fetch operation:', error);
+            });
+            document.getElementById('doctorAppointmentSection').classList.remove('d-none');
     }
 </script>
 {% endblock %}

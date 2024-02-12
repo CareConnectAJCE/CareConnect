@@ -19,5 +19,6 @@ urlpatterns = [
     path('appointment/visited/', views.appointment_visited, name='mark_visited'),
     path('appointment/deleted/', views.appointment_deleted, name='mark_deleted'),
     path('chat/', views.chatbot_landing, name='chat'),
-    path('response/', views.get_bot_response, name='bot_response')
+    path('response/', views.get_bot_response, name='bot_response'),
+    path('predict/doctor', views.predict_doctor_symptom, name="doctor_predictor")
 ]

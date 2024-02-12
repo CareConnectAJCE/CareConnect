@@ -93,8 +93,13 @@
 {% block content %}
 <div class="container chatbot_landing" id="chatbot_landing">
     <h1 class="text-center"><b>CureBot</b></h1>
-    <div id="chatbox" class="border">
-        <!-- Chat messages will be appended here -->
+    <div class="row">
+        <div class="col">
+            <div id="chatbox" class="border d-flex flex-column">
+                <!-- Chat messages will be appended here -->
+                <div class="flex-grow-1"></div> <!-- Add this to push content to the top -->
+            </div>
+        </div>
     </div>
     <div id="userInput" class="input-group text-center">
         <div class="input-group-prepend">
@@ -117,6 +122,11 @@
 
 <script>
     var loadingScreen = document.getElementById("loading");
+    const indicatorHtml = `
+        <div class="d-flex justify-content-start" id="typingIndicator">
+            <span class="text-muted">AI is typing...</span>
+        </div>
+    `;
 
     function showLoading() {
         loadingScreen.style.display = "block";
@@ -124,6 +134,15 @@
 
     function hideLoading() {
         loadingScreen.style.display = "none";
+    }
+
+    function showIndicator() {
+        $("#chatbox").append(indicatorHtml);
+        $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+    }
+
+    function hideIndicator() {
+        $("#typingIndicator").remove();
     }
 
     function getLocation() {
@@ -202,33 +221,39 @@
         $("#chatbox").append(userHtml);
         $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
 
+        // Show typing indicator
+        showIndicator();
+
         fetch("/response?msg=" + encodeURIComponent(rawText))
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(data) {
-                var botHtml = '<p class="botText"><span>' + data.message + "</span></p>";
-                $("#chatbox").append(botHtml);
-                $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
-                if (data.message == "Bye! Have a nice day😇") {
-                    // hide the component userInput
-                    $("#userInput").hide();
-                    // wait 3 seconds and reload the page
-                    setTimeout(function() {
-                        window.location.replace('/')
-                    }, 3000);
-                } else if (data.message == "Starting your appointment scheduling process. Please wait for a moment.") {
-                    // hide the component userInput
-                    $("#userInput").hide();
-                    // wait 3 seconds and redirect to the appointment page
-                    setTimeout(function() {
-                        window.location.replace('/appointment')
-                    }, 3000);
-                }
-            })
-            .catch(function(error) {
-                console.error("Error:", error);
-            });
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            hideIndicator();
+            var botHtml = '<p class="botText"><span>' + data.message + "</span></p>";
+            $("#chatbox").append(botHtml);
+            $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+
+            // Handle special messages if needed
+            if (data.message == "Bye! Have a nice day😇") {
+                // hide the component userInput
+                $("#userInput").hide();
+                // wait 3 seconds and reload the page
+                setTimeout(function() {
+                    window.location.replace('/')
+                }, 3000);
+            } else if (data.message == "Starting your appointment scheduling process. Please wait for a moment.") {
+                // hide the component userInput
+                $("#userInput").hide();
+                // wait 3 seconds and redirect to the appointment page
+                setTimeout(function() {
+                    window.location.replace('/appointment')
+                }, 3000);
+            }
+        })
+        .catch(function(error) {
+            console.error("Error:", error);
+        });
     }
 
     $("#textInput").keypress(function (e) {
@@ -239,6 +264,7 @@
 
     var botHtml = '<p class="botText"><span>Welcome! I am your medical assistant. Feel free to interact with me🙂</span></p>';
     $("#chatbox").append(botHtml);
+    hideIndicator();
 </script>
 
 {% endblock %}

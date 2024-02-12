@@ -172,11 +172,11 @@ class Chat:
         )
 
     def get_bot_response(self, user_message):
+        context = {"input": user_message}
         if "bye" in user_message.lower():
             response = "Bye! Have a nice day😇"
             self.memory.save_context(context, {"output": response})
         else:
-            context = {"input": user_message}
             result = self.final_chain.invoke(context)
 
             self.memory.save_context(context, {"output": result})
@@ -189,78 +189,84 @@ class Chat:
             else:
                 response = result
             
-            Conversation.objects.create(user=self.user, is_user_message=True, message_content=user_message, session_id=self.random_no)
-            Conversation.objects.create(user=self.user, is_user_message=False, message_content=response, session_id=self.random_no)
+        Conversation.objects.create(user=self.user, is_user_message=True, message_content=user_message, session_id=self.random_no)
+        Conversation.objects.create(user=self.user, is_user_message=False, message_content=response, session_id=self.random_no)
 
         return response
     
-def get_possible_symptoms(symptoms):
-    model = ChatOpenAI(temperature=0.3)
+    def get_possible_symptoms(self, symptoms):
+        model = ChatOpenAI(temperature=0.3)
 
-    class Symptoms(BaseModel):
-        symptoms: list[str] = Field(description="The list of other symptoms the patient might have")
+        class Symptoms(BaseModel):
+            symptoms: list[str] = Field(description="The list of other symptoms the patient might have")
 
-    parser = JsonOutputParser(pydantic_object=Symptoms)
+        parser = JsonOutputParser(pydantic_object=Symptoms)
 
-    prompt = PromptTemplate(
-        template="Answer the user query by predicting other possible symptoms.\n{format_instructions}\n{query}\n",
-        input_variables=["query"],
-        partial_variables={"format_instructions": parser.get_format_instructions()},
-    )
+        prompt = PromptTemplate(
+            template="Answer the user query by predicting other possible symptoms.\n{format_instructions}\n{query}\n",
+            input_variables=["query"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
+        )
 
-    chain = (
-        prompt
-        | model
-        | parser
-    )
+        chain = (
+            RunnablePassthrough.assign(
+                history=RunnableLambda(self.memory.load_memory_variables) | itemgetter("history")
+            )
+            | prompt
+            | model
+            | parser
+        )
 
-    response = chain.invoke({"query": ",".join(symptoms)})
-    return response["symptoms"]
+        response = chain.invoke({"query": ",".join(symptoms)})
+        return response["symptoms"]
 
-def suitable_doctor_symptom(symptoms, latitude, longitude):
-    doctors = Doctor.objects.all()
+    def suitable_doctor_symptom(self, symptoms, latitude, longitude):
+        doctors = Doctor.objects.all()
 
-    doctor_details = ""
-    for doctor in doctors:
-        # Use the equation =acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))*6371 to find the distance between the patient and the doctor
-        distance = 6371 * (math.acos(math.sin(math.radians(latitude)) * math.sin(math.radians(doctor.latitude)) + math.cos(math.radians(latitude)) * math.cos(math.radians(doctor.latitude)) * math.cos(math.radians(doctor.longitude) - math.radians(longitude))))
-        if distance <= 10:
-            doctor_details += f"ID: {doctor.user.sub} -> {doctor.user.first_name} {doctor.user.last_name} - {doctor.specialization}\n"
+        doctor_details = ""
+        for doctor in doctors:
+            # Use the equation =acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))*6371 to find the distance between the patient and the doctor
+            distance = 6371 * (math.acos(math.sin(math.radians(latitude)) * math.sin(math.radians(doctor.latitude)) + math.cos(math.radians(latitude)) * math.cos(math.radians(doctor.latitude)) * math.cos(math.radians(doctor.longitude) - math.radians(longitude))))
+            if distance <= 10:
+                doctor_details += f"ID: {doctor.user.sub} -> {doctor.user.first_name} {doctor.user.last_name} - {doctor.specialization}\n"
 
-    # Use OpenAI and the predicted disease to find the suitable doctor
-    doctor_details_prompt = f"""
-    You are the receptionist of the hospital. \
-    You have to find the suitable doctor for the patient. \
-    These are the list of doctors who can help you with your symptoms. \
-    {doctor_details} \
-    The patient has the following symptoms: {symptoms} \
-    Find the suitable doctor for the patient. \
-    Reply with the ID of the doctor who can help the patient and \
-    the predicted disease based on the symptoms.
-    """
+        # Use OpenAI and the predicted disease to find the suitable doctor
+        doctor_details_prompt = f"""
+        You are the receptionist of the hospital. \
+        You have to find the suitable doctor for the patient. \
+        These are the list of doctors who can help you with your symptoms. \
+        {doctor_details} \
+        The patient has the following symptoms: {symptoms} \
+        Find the suitable doctor for the patient. \
+        Reply with the ID of the doctor who can help the patient and \
+        the predicted disease based on the symptoms.
+        """
 
-    model = ChatOpenAI(temperature=0.3)
+        model = ChatOpenAI(temperature=0.3)
 
-    class DoctorDetails(BaseModel):
-        doctor_id: str = Field(description="The ID of the doctor who can help the patient"),
-        predicted_disease: str = Field(description="The disease the doctor thinks the patient has")
+        class DoctorDetails(BaseModel):
+            doctor_id: str = Field(description="The ID of the doctor who can help the patient")
+            predicted_disease: str = Field(description="The disease the doctor thinks the patient has")
 
-    parser = JsonOutputParser(pydantic_object=DoctorDetails)
+        parser = JsonOutputParser(pydantic_object=DoctorDetails)
 
-    prompt = PromptTemplate(
-        template="Answer the user query.\n{format_instructions}\n{query}\n",
-        input_variables=["query"],
-        partial_variables={"format_instructions": parser.get_format_instructions()},
-    )
+        prompt = PromptTemplate(
+            template="Answer the user query.\n{format_instructions}\n{query}\n",
+            input_variables=["query"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
+        )
 
-    chain = (
-        prompt
-        | model
-        | parser
-    )
+        chain = (
+            RunnablePassthrough.assign(
+                history=RunnableLambda(self.memory.load_memory_variables) | itemgetter("history")
+            )
+            | prompt
+            | model
+            | parser
+        )
 
-    response = chain.invoke({"query": doctor_details_prompt})
-    return {
-        "doctor_id": response.doctor_id,
-        "predicted_disease": response.predicted_disease
-    }
+        response = chain.invoke({"query": doctor_details_prompt})
+        return {
+            "doctor_id": response["doctor_id"],
+            "predicted_disease": response["predicted_disease"]
+        }

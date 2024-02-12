@@ -2,10 +2,11 @@
 import json
 import random
 from urllib.parse import quote_plus, urlencode
+from datetime import date, timedelta
 
 # Utils and Models import
-from .models import Conversation, Appointment, Doctor, Report
-from .utils import Chat, get_possible_symptoms, suitable_doctor_symptom
+from .models import Appointment, Doctor, Report
+from .utils import Chat
 
 # OpenAI imports
 from openai import OpenAI
@@ -273,16 +274,14 @@ def appointment(request):
         appointment = Appointment.objects.create(
             user=user,
             doctor=doctor,
-            appointment_time=request.POST["appointment_time"],
-            symptoms=request.POST["symptoms"],
-            scheduled_time=request.POST["scheduled_time"]
+            scheduled_time=request.POST["scheduled_time"],
         )
         appointment.save()
         return redirect(reverse("patient"))
     else:
         report = Report.objects.filter(user__sub=request.session["user"]["userinfo"]["sub"]).last()
         symptoms = report.symptoms.split(",")
-        possible_symptoms = get_possible_symptoms(symptoms)
+        possible_symptoms = chat.get_possible_symptoms(symptoms)
         return render(
             request,
             "home/appointment.html",
@@ -296,10 +295,19 @@ def appointment(request):
     
 def predict_doctor_symptom(request):
     symptoms = request.GET.get("symptoms")
-    response = suitable_doctor_symptom(symptoms, )
+    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+
+    # save symptoms to the last report
+    report = Report.objects.filter(user=user).last()
+    report.symptoms = symptoms
+
+    response = chat.suitable_doctor_symptom(symptoms, user.latitude, user.longitude)
+    report.predicted_disease = response["disease"]
+    report.save()
+    
     return JsonResponse({
-        "doctors": response.doctor_id,
-        "predicted_disease": response.predicted_disease,
+        "doctor_id": response["doctor_id"],
+        "available_times": [f"{date.today() + timedelta(days=i)}" for i in range(1, 8)]
     })
 
 # Landing pages views end
