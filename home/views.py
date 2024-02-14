@@ -568,7 +568,8 @@ def predict_doctor_symptom(request):
         {
             "available_times": [
                 f"{date.today() + timedelta(days=i)}" for i in range(1, 8)
-            ]
+            ],
+            "doctor": doctor
         }
     )
 

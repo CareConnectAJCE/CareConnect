@@ -74,6 +74,7 @@
 
                         <!-- Doctor Appointment Section (Hidden by default) -->
                         <div id="doctorAppointmentSection" class="mt-4 d-none">
+                            <h6 class="card-subtitle mb-2" id="doctor_name"></h6>
                             <h6 class="card-subtitle mb-2 text-muted">Choose Appointment Time:</h6>
                             <!-- Add options for appointment times from the API response -->
                             <select class="form-control" id="appointmentTime" name="appointmentTime">
@@ -111,7 +112,25 @@
     }
 
     function scheduleAppointment() {
-        alert('Appointment scheduled successfully!');
+        fetch('appointment/', {
+            method: 'POST',
+            body: {
+                doctor_id: doctorId,
+                appointment_time: document.getElementById('appointmentTime').value
+            },
+            headers: {
+                'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
+            }
+        })
+        .then(data => {
+            // Handle response, e.g., display success message
+            console.log('Success:', data);
+            window.location.href = '/patient';
+        })
+        .catch(error => {
+            // Handle error, e.g., display error message
+            console.error('There was a problem with the fetch operation:', error);
+        });
     }
 
     function getDoctor(symptoms) {
@@ -126,9 +145,12 @@
             .then(data => {
                 // Handle response, e.g., populate appointment times
                 console.log('Success:', data);
-                doctorId = data.doctor_id;
                 const appointmentTimes = data.available_times;
                 const appointmentTimeSelect = document.getElementById('appointmentTime');
+
+                document.getElementById("doctor_id").innerHTML = data.doctor.user.first_name;
+                doctorId = data.doctor.user.sub;
+
                 for (const time of appointmentTimes) {
                     const option = document.createElement('option');
                     option.value = time;
