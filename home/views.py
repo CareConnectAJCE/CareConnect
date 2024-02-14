@@ -86,10 +86,15 @@ def callback(request):
     )
 
     if not created:
-        user.email = user_info.get("email", "")
-        user.sub = sub
-        user.last_login = user_info.get("updated_at", "")
-        user.username = user_info.get("nickname", "")
+        try:
+            user.email = user_info.get("email", "")
+            user.sub = sub
+            user.last_login = user_info.get("updated_at", "")
+            user.username = user_info.get("nickname", "")
+        except Exception as e:
+            user.username = user_info.get("nickname", "") + "_1"
+            print(e)
+
         user.save()
     else:
         user.last_login = user_info.get("updated_at", "")
