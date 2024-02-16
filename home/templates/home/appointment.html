@@ -137,7 +137,9 @@
             console.log(symptoms);
             fetch(`/predict/doctor`, {
                 method: 'POST',
-                body: symptoms,
+                body: {
+                    'symptoms':symptoms
+                },
                 headers: {
                     'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
                 }
@@ -145,11 +147,11 @@
             .then(data => {
                 // Handle response, e.g., populate appointment times
                 console.log('Success:', data);
-                const appointmentTimes = data.available_times;
+                const appointmentTimes = data["available_times"];
                 const appointmentTimeSelect = document.getElementById('appointmentTime');
 
-                document.getElementById("doctor_id").innerHTML = data.doctor.user.first_name;
-                doctorId = data.doctor.user.sub;
+                document.getElementById("doctor_id").innerHTML = data["doctor"]["username"];
+                doctorId = data["doctor"]["id"];
 
                 for (const time of appointmentTimes) {
                     const option = document.createElement('option');

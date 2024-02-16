@@ -86,10 +86,15 @@ def callback(request):
     )
 
     if not created:
-        user.email = user_info.get("email", "")
-        user.sub = sub
-        user.last_login = user_info.get("updated_at", "")
-        user.username = user_info.get("nickname", "")
+        try:
+            user.email = user_info.get("email", "")
+            user.sub = sub
+            user.last_login = user_info.get("updated_at", "")
+            user.username = user_info.get("nickname", "")
+        except Exception as e:
+            user.username = user_info.get("nickname", "") + "_1"
+            print(e)
+
         user.save()
     else:
         user.last_login = user_info.get("updated_at", "")
@@ -466,16 +471,17 @@ def appointment(request):
     """
     if request.method == "POST":
         user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
-        doctor = User.objects.get(sub=request.POST["doctor"])
+        doctor = User.objects.get(id=request.POST["doctor_id"])
         appointment = Appointment.objects.create(
             user=user,
             doctor=doctor,
-            scheduled_time=request.POST["scheduled_time"],
+            scheduled_time=request.POST["appointment_time"],
         )
         appointment.save()
         return redirect(reverse("patient"))
     else:
         try:
+            user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
             report = Report.objects.filter(
                 user__sub=request.session["user"]["userinfo"]["sub"]
             ).last()
@@ -485,6 +491,7 @@ def appointment(request):
                 request,
                 "home/appointment.html",
                 context={
+                    "user": user,
                     "symptoms": symptoms,
                     "possible_symptoms": possible_symptoms,
                     "session": request.session.get("user"),
@@ -555,7 +562,7 @@ def predict_doctor_symptom(request):
     Returns:
         JsonResponse: A JSON response containing the available times for the predicted doctor.
     """
-    symptoms = request.GET.get("symptoms")
+    symptoms = request.POST.get("symptoms")
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
 
     # save symptoms to the last report
@@ -563,18 +570,26 @@ def predict_doctor_symptom(request):
     report.symptoms = symptoms
 
     response = chat.suitable_doctor_symptom(symptoms, user.latitude, user.longitude)
-    doctor = User.objects.get(sub=response["doctor_id"])
+    doctor = User.objects.get(id=response["doctor_id"])
     report.predicted_disease = response["predicted_disease"]
     report.doctor = doctor
     report.save()
+    try:
+        print("Doctor:", doctor)
+        print("ID: ", doctor.id)
+    except Exception as e:
+        print("Exc: ", e)
 
     return JsonResponse(
-        {
-            "available_times": [
-                f"{date.today() + timedelta(days=i)}" for i in range(1, 8)
-            ],
-            "doctor": doctor
+    {
+        "available_times": [
+            f"{date.today() + timedelta(days=i)}" for i in range(1, 8)
+        ],
+        "doctor": {
+            "id": doctor.id,
+            "username": doctor.username,
         }
-    )
+    }
+)
 
 # Chatbot views and functions end

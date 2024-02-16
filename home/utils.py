@@ -301,11 +301,12 @@ class Chat:
             dict: A dictionary containing the ID of the suitable doctor and the predicted disease.
 
         """
+        print(symptoms)
         doctors = Doctor.objects.all()
 
         doctor_details = ""
         for doctor in doctors:
-            # Use the equation =acos(sin(lat1)*sin(lat2)+cos(lat1)*cos(lat2)*cos(lon2-lon1))*6371 to find the distance between the patient and the doctor
+
             distance = 6371 * (
                 math.acos(
                     math.sin(math.radians(latitude))
@@ -316,7 +317,7 @@ class Chat:
                 )
             )
             if distance <= 10:
-                doctor_details += f"ID: {doctor.user.sub} -> {doctor.user.first_name} {doctor.user.last_name} - {doctor.specialization}\n"
+                doctor_details += f"ID: {doctor.user.id} -> {doctor.user.first_name} {doctor.user.last_name} - {doctor.specialization}\n"
 
         # Use OpenAI and the predicted disease to find the suitable doctor
         doctor_details_prompt = f"""
@@ -329,6 +330,7 @@ class Chat:
         Reply with the ID of the doctor who can help the patient and \
         the predicted disease based on the symptoms.
         """
+        print(doctor_details_prompt)
 
         model = ChatOpenAI(temperature=0.3)
 
@@ -359,6 +361,7 @@ class Chat:
         )
 
         response = chain.invoke({"query": doctor_details_prompt})
+        print(response)
         return {
             "doctor_id": response["doctor_id"],
             "predicted_disease": response["predicted_disease"],
