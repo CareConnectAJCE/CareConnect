@@ -33,7 +33,7 @@ input:hover, input:focus {
 
 /* line 18, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_common.scss */
 .section_padding {
-  padding: 140px 0px;
+  padding: 80px 0px;
 }
 
 @media only screen and (min-width: 992px) and (max-width: 1200px) {
@@ -84,7 +84,7 @@ input:hover, input:focus {
 
 /* line 48, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_common.scss */
 .padding_top {
-  padding-top: 140px;
+  padding-top: 80px;
 }
 
 @media only screen and (min-width: 992px) and (max-width: 1200px) {
@@ -2510,8 +2510,8 @@ ul {
 
 /* line 202, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_about_us.scss */
 .single_about_padding {
-  padding: 140px 0 0;
-  margin-bottom: 515px;
+  padding: 12rem 0 0;
+  margin-bottom: 120px;
 }
 
 @media (max-width: 991px) {
@@ -2533,7 +2533,7 @@ ul {
 /**************** service_part css start ****************/
 /* line 2, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_feature_part.scss */
 .feature_part {
-  padding: 140px 0 515px;
+  padding: 120px 0 120px;
 }
 
 @media (max-width: 991px) {
@@ -2755,7 +2755,7 @@ ul {
 
 /* line 200, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_feature_part.scss */
 .single_feature_page {
-  padding: 140px 0 0;
+  padding: 80px 0 0;
 }
 
 @media (max-width: 991px) {
@@ -3128,7 +3128,7 @@ ul {
 
 /* line 104, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_doctor_list.scss */
 .single_page_doctor_part {
-  padding: 140px 0 110px;
+  padding: 80px 0 110px;
 }
 
 @media (max-width: 991px) {
@@ -5130,8 +5130,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* line 18, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_breadcrumb.scss */
-.breadcrumb_part .breadcrumb_iner .breadcrumb_iner_item h2 {
-  color: #fff;
+.breadcrumb_part .breadcrumb_iner .breadcrumb_iner_item h3 {
+  color: black;
   font-size: 100px;
   font-weight: 700;
   text-transform: capitalize;
@@ -5162,7 +5162,7 @@ h1, h2, h3, h4, h5, h6 {
 /* line 39, ../../01 cl html template/03_jun 2019/182_medico_html/sass/_breadcrumb.scss */
 .breadcrumb_part .breadcrumb_iner .breadcrumb_iner_item p {
   font-size: 15px;
-  color: #fff;
+  color: #000;
   text-transform: capitalize;
 }
 
