@@ -475,21 +475,25 @@ def appointment(request):
         appointment.save()
         return redirect(reverse("patient"))
     else:
-        report = Report.objects.filter(
-            user__sub=request.session["user"]["userinfo"]["sub"]
-        ).last()
-        symptoms = report.symptoms.split(",")
-        possible_symptoms = chat.get_possible_symptoms(symptoms)
-        return render(
-            request,
-            "home/appointment.html",
-            context={
-                "symptoms": symptoms,
-                "possible_symptoms": possible_symptoms,
-                "session": request.session.get("user"),
-                "pretty": json.dumps(request.session.get("user"), indent=4),
-            },
-        )
+        try:
+            report = Report.objects.filter(
+                user__sub=request.session["user"]["userinfo"]["sub"]
+            ).last()
+            symptoms = report.symptoms.split(",")
+            possible_symptoms = chat.get_possible_symptoms(symptoms)
+            return render(
+                request,
+                "home/appointment.html",
+                context={
+                    "symptoms": symptoms,
+                    "possible_symptoms": possible_symptoms,
+                    "session": request.session.get("user"),
+                    "pretty": json.dumps(request.session.get("user"), indent=4),
+                },
+            )
+        except Exception as e:
+            print("Exception: ", e)
+            return redirect(reverse('index'))
 
 # Functions for the landing pages end
 
@@ -553,13 +557,13 @@ def predict_doctor_symptom(request):
     """
     symptoms = request.GET.get("symptoms")
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
-    doctor = User.objects.get(sub=response["doctor_id"])
 
     # save symptoms to the last report
     report = Report.objects.filter(user=user).last()
     report.symptoms = symptoms
 
     response = chat.suitable_doctor_symptom(symptoms, user.latitude, user.longitude)
+    doctor = User.objects.get(sub=response["doctor_id"])
     report.predicted_disease = response["predicted_disease"]
     report.doctor = doctor
     report.save()
