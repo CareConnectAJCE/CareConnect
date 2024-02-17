@@ -10,7 +10,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 from langchain_core.runnables import RunnableBranch, RunnablePassthrough, RunnableLambda
 from langchain.output_parsers.openai_functions import PydanticAttrOutputFunctionsParser
-from langchain.utils.openai_functions import convert_pydantic_to_openai_function
+from langchain_core.utils.function_calling import convert_to_openai_function
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain.globals import set_verbose
 
@@ -135,7 +135,7 @@ class Chat:
                 topic: Literal["general", "patient query", "schedule appointment query"]
                 "The topic of the user question. One of 'patient query' or 'general' or 'schedule query'."
 
-            classifier_function = convert_pydantic_to_openai_function(TopicClassifier)
+            classifier_function = convert_to_openai_function(TopicClassifier)
 
             llm = ChatOpenAI().bind(
                 functions=[classifier_function], function_call={"name": "TopicClassifier"}
