@@ -138,4 +138,37 @@
             </div>
         </div>
     </section>
+
+    <section class="additional_features padding_top mb-3">
+        <div class="container">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-md-6 col-lg-6">
+                    <div class="additional_features_img">
+                        <img src="{% static 'home/img/feature_1.png' %}" alt="top_service" />
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-5">
+                    <div class="additional_features_text" data-aos="fade-left"
+                    data-aos-duration="1000">
+                        <h2 style="font-weight: 700;">Additional Features</h2>
+                        <p>
+                            CareConnect is designed to be a comprehensive solution for patients, providing a range of features to support their health and wellbeing. These features include:
+                        </p>
+                        <div class="banner_item">
+                            <div class="single_item">
+                                <img src="{% static 'home/img/icon/feature_2.svg' %}" alt="icon_1" />
+                                <h5>Infection Detection</h5>
+                                <a href="{% url 'detection:landing' %}" class="btn_2 mt-2">Check your Eye</a>
+                            </div>
+                            <!-- <div class="single_item">
+                                <img src="{% static 'home/img/icon/feature_2.svg' %}" alt="icon_1" />
+                                <h5>Throat Detection</h5>
+                                <a href="{% url 'detection:landing' %}" class="btn_2 mt-2">Check your Eye</a>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}

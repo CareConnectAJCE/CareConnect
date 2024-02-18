@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+{% if title %}
+		<title>{{ title }}</title>
+{% else %}
+	<title>Eye Condition Detection </title>
+{% endif %}
+
+<head>
+	<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'detection/main.css' %}">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+
+
+    {% block extra_css %}
+	<style>
+        .detection {
+            margin: 10%;
+            height: 80vh;
+            font-family: Arial;
+        }
+    </style>
+	{% endblock %}
+
+	
+</head>
+<body>
+	<header class="main_menu home_menu">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-12">
+                    <nav class="navbar navbar-expand-lg navbar-light">
+                        <a class="navbar-brand" href="{% url 'index' %}">
+                            <img src="{% static 'home/img/logo.png' %}" alt="logo" />
+                        </a>
+                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse main-menu-item justify-content-center" id="navbarSupportedContent">
+                            <ul class="navbar-nav align-items-center">
+                                <li class="nav-item active">
+                                    <a class="nav-link" href="{% url 'index' %}">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'about' %}">About</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% block profile %}{% endblock %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+	<main role="main" class="container detection">
+	  <div class="row">
+	    <div class="col-md-8">
+	      {% block content %}{% endblock %}
+	    </div>
+	    <div class="col-md-4">
+	      <div class="iphone">
+	      	<form action="/">
+	      		<button type="submit" class="home" href="/">
+	      			<span class="tooltiptext">Reset image</span>
+	      		</button>
+	      		
+	     	</form>
+	      	<span class="speaker"></span>
+	      	<span class="camera"></span>
+			<span class="proximity"></span>
+			<span class="silence"></span>
+			<span class="volume-up"></span>
+			<span class="volume-down"></span>
+			<span class="sleep" title="Sleep"></span>
+	      	
+	      	
+      		{% block image_container %}{% endblock %}
+	      	
+	      	
+	        <!-- <h3>Navigation</h3> -->
+	        <!-- <p class='text-muted'>You can put any information here you'd like. -->
+	          <!-- <ul class="list-group">
+	            <li class="list-group-item list-group-item-light">Home</li>
+	            <li class="list-group-item list-group-item-light">About</li>
+	            <li class="list-group-item list-group-item-light">Contact</li>
+	          </ul> -->
+	        <!-- </p> -->
+	      </div>
+	    </div>
+	  </div>
+
+	  <div class="extra-info">
+	  	{% block extra_info_container %}{% endblock %}
+	  </div>
+	</main>
+
+	<!-- Footer area -->
+    <footer class="footer-area">
+        <div class="footer section_padding" style="padding-top: 10px !important;">
+            <div class="container">
+                <div class="row justify-content-between">
+                    <div class="col-xl-12 col-md-12 col-sm-12 single-footer-widget text-center" data-aos="fade-up"
+                    data-aos-anchor-placement="top-bottom">
+                        <a # class="footer_logo">
+                            <img src="{% static 'home/img/logo.png' %}" alt="logo" />
+                        </a>
+                        <p>
+                            CareConnect is an innovative healthcare solution powered by advanced AI technology. It serves as a compassionate and empathetic intermediary between patients and healthcare providers, helping individuals navigate their healthcare journey with ease and confidence.
+                        </p>
+                        <div class="social_logo">
+                            <a #>
+                                <i class="fa fa-facebook"></i>
+                            </a>
+                            <a #>
+                                <i class="fa fa-twitter"></i>
+                            </a>
+                            <a #>
+                                <i class="fa fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright_part">
+            <div class="container">
+                <div class="row align-items-center">
+                    <p class="footer-text m-0 col-lg-8 col-md-12">
+                        Copyright &copy;
+                        <script>
+                            document.write(new Date().getFullYear());
+                        </script>
+                        All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="#">CareConnect</a>
+                    </p>
+                    <div class="col-lg-4 col-md-12 text-center text-lg-right footer-social">
+                        <a #>
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                        <a #>
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                        <a #>
+                            <i class="fa fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Files -->
+    <script src="https://kit.fontawesome.com/145b4ea913.js" crossorigin="anonymous"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Include Bootstrap JS and dependencies (Popper.js and jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

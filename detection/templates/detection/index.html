@@ -1,0 +1,128 @@
+{% extends "detection/layout.html" %} {% load mathfilters %} {% load static %}
+	{% block content %}
+		<div class="instruction-text">
+			<h3 class="heading">Get Started:</h3>
+			<p class="mb-3">
+				<span class="bold">CareConnect Eye Care</span> is an application that
+				uses deep learning to detect visual symptoms of various eye conditions
+				from eye images. Simply snap a photo of your eye to get started.
+			</p>
+
+			<ol>
+				<li class="mb-2">Take a photo of your eye and upload.</li>
+				<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+				<form
+					method="post"
+					enctype="multipart/form-data"
+				>
+					{% csrf_token %}
+					<p>
+						<label for="myFile" class="custom-file-upload">
+							<i class="fa fa-upload"></i>Upload New Image
+						</label>
+						<input type="file" id="myFile" name="file" />
+						<script>
+							$("#myFile").change(function () {
+								var i = $(this).prev("label").clone();
+								var file = $("#myFile")[0].files[0].name;
+								$(this).prev("label").text(file);
+							});
+						</script>
+						<script>
+							$("#myFile").change(function () {
+								var i = $("#button_label").clone();
+								var file = $("#myFile")[0].files[0].name;
+								$("#button_label").text(file);
+							});
+						</script>
+					</p>
+					<li class="mt-3">
+						Press the submit button to see the prediction. The model will
+						check for visual symptoms of cataracts, styes, and
+						conjunctivitis.
+					</li>
+					<br />
+					<p><input type="submit" value="Submit" /></p>
+				</form>
+			</ol>
+		</div>
+		<hr />
+		{% if filename %}
+			{% if prediction %} 
+				<h3>{{  prediction_value }}% chance of conjunctivitis</h3>
+				{% if prediction >= 0.99 %}
+					<p>No visual symptoms of conjunctivitis detected</p>
+				{% elif prediction >= 0.5 %}
+					<p>
+						Some warning signs were detected, but the model predicts this is likely not
+						conjunctivitis.
+					</p>
+				{% elif prediction < 0.01 %}
+					<p>Strong symptoms of conjunctivitis were detected in this image.</p>
+				{% else %}
+					<p>The model detected warning signs of conjunctivitis.</p>
+				{% endif %}
+				<hr />
+				<p>
+					Please remember that this application is a tool to aid in decision making,
+					and does not represent an official medical diagnosis.
+				</p>
+			{% endif %} 
+		{% endif %} 
+	{% endblock content %}
+{% block image_container %}
+	<div class="screen-home">
+		<div class="background-image">
+			<div class="wallpaper">
+				<img
+					class="wallpaper-image"
+					src="{% static 'detection/contact_wallpaper.png' %}"
+				/>
+			</div>
+
+			<div class="icon-container">
+				{% if filename|length == 0 %}
+					<p>
+						<label
+							id="button_label"
+							for="myFile"
+							class="custom-file-upload"
+						>
+							<i class="fa fa-upload"></i>Upload New Image
+						</label>
+					</p>
+				{% endif %} 
+				{% if filename %}	
+					<img
+						class="user-picture"
+						src="{% static 'detection/uploads/'|add:filename %}"
+					/>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock image_container %} 
+{% block extra_info_container %}
+	<hr />
+	<br />
+	{% if filename %}
+		<div class="symptom-links">
+			<p>
+				<a
+					href="https://www.mayoclinic.org/diseases-conditions/pink-eye/symptoms-causes/syc-20376355"
+					target="_blank"
+					>Conjunctivitis symptoms</a
+				>
+			</p>
+		</div>
+		<div class="symptom-links">
+			<p>
+				<a
+					href="https://www.healthgrades.com/right-care/eye-health/when-to-see-a-doctor-for-pink-eye-conjunctivitis#:~:text=Most%20often%2C%20the%20doctor%20who,an%20ophthalmologist%2C%20an%20eye%20specialist."
+					target="_blank"
+					>When to seek medical care</a
+				>
+			</p>
+		</div>
+	{% endif %}
+{% endblock extra_info_container %}

@@ -1,5 +1,6 @@
 authlib==1.2.1
 django==4.2.6
+django-mathfilters
 python-dotenv==0.21.1
 requests==2.31.0
 openai==1.10.0
@@ -7,3 +8,7 @@ langchain==0.0.352
 langchain-openai==0.0.5
 langchain-community==0.0.15
 langchain-core==0.1.16
+numpy==1.26.4
+matplotlib==3.8.3
+keras==2.15.0
+tensorflow==2.15.0
