@@ -1,4 +1,5 @@
 venv/
+features/
 .DS_Store
 .env
 db.sqlite3
