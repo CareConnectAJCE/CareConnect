@@ -5371,7 +5371,6 @@ h1, h2, h3, h4, h5, h6 {
 .additional_features {
   position: relative;
   z-index: 99;
-  background-image: url(../img/about_bg.png);
   background-position: left bottom;
   background-repeat: no-repeat;
   background-size: 50% 90%;
