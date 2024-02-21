@@ -4,7 +4,7 @@ CareConnect is a semester 8 project, designed to act as a sympathetic medical ch
 
 ---
 
-## **Installation:**
+## **Installation and Development**
 
 ### To run CareConnect, follow these steps:
 
@@ -20,17 +20,19 @@ CareConnect is a semester 8 project, designed to act as a sympathetic medical ch
 6. Initialise the env file:
     - Run ```cp dotenv .env```
     - Copy the credentials from the Auth0 application and fill it in the placeholders
-7. Create migrations using the command `python manage.py makemigrations`
-8. Migrate all the migrations to the model using the command `python manage.py migrate`
-9. Start the Django development server using the command `python manage.py runserver`.
-19. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+7. Checkout the ```localdev``` branch (```additional-features``` for testing out the eye disease).
+8. Create migrations using the command `python manage.py makemigrations`
+9. Migrate all the migrations to the model using the command `python manage.py migrate`
+10. Start the Django development server using the command `python manage.py runserver`.
+11. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 ### Returning users:
 
 1. Activate the venv
-2. Make migrations
-3. Migrate the changes
-4. Run the server
+2. Change the branch
+3. Make migrations
+4. Migrate the changes
+5. Run the server
 
 ### Exit the app:
 
@@ -45,10 +47,10 @@ CareConnect is a semester 8 project, designed to act as a sympathetic medical ch
 If you'd like to contribute to CareConnect, please follow these steps:
 
 1. Fork the repository on GitHub.
-2. Create a new branch with a descriptive name.
+2. Create a new branch from ```localdev``` branch as parent with a descriptive name.
 3. Make your changes and commit them with clear, concise messages.
 4. Push the changes to your fork.
-5. Create a pull request, explaining the changes made.
+5. Create a pull request, explaining the changes made to our localdev branch.
 
 ---
 
