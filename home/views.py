@@ -5,7 +5,7 @@ from urllib.parse import quote_plus, urlencode
 from datetime import date, timedelta
 
 # Utils and Models import
-from .models import Appointment, Doctor, Report
+from .models import Appointment, Doctor, Report, Rating
 from .utils import Chat
 
 # OpenAI imports
@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.utils import timezone
+from django.db import models
 
 User = get_user_model()
 
@@ -82,7 +83,7 @@ def callback(request):
             "sub": sub,
             "first_name": user_info.get("given_name", ""),
             "last_name": user_info.get("family_name", ""),
-        },
+        }
     )
 
     if not created:
@@ -90,6 +91,7 @@ def callback(request):
             user.email = user_info.get("email", "")
             user.sub = sub
             user.last_login = user_info.get("updated_at", "")
+            user.picture = user_info.get("picture", "")
             user.username = user_info.get("nickname", "")
         except Exception as e:
             user.username = user_info.get("nickname", "") + "_1"
@@ -98,6 +100,7 @@ def callback(request):
         user.save()
     else:
         user.last_login = user_info.get("updated_at", "")
+        user.picture = user_info.get("picture", "")
         user.save()
 
     request.session["user"] = token
@@ -306,6 +309,74 @@ def patient_view(request):
         },
     )
 
+def doctor_single_view(request, id):
+    """
+    Renders the doctor single view.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        id (int): The ID of the doctor.
+
+    Returns:
+        HttpResponse: The rendered doctor single view.
+
+    Raises:
+        Doctor.DoesNotExist: If the doctor does not exist.
+    """
+    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    doctor = Doctor.objects.get(user__id=id)
+    rating = Rating.objects.filter(doctor=doctor.user)
+    average_rating = rating.aggregate(avg_rating=models.Avg("rating"))
+    rating_count = int(average_rating["avg_rating"]) if average_rating["avg_rating"] else 0
+    previous_appointments = Appointment.objects.filter(doctor=doctor.user)
+    return render(
+        request,
+        "home/doctor_single.html",
+        context={
+            "user": user,
+            "doctor": doctor,
+            "ratings": rating,
+            "avg_rating": average_rating["avg_rating"],
+            "rating_count": rating_count,
+            "previous_appointments": previous_appointments,
+            "session": request.session.get("user"),
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        },
+    )
+
+def patient_single_view(request, id):
+    """
+    Renders the patient single view.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        id (int): The ID of the patient.
+
+    Returns:
+        HttpResponse: The rendered patient single view.
+
+    Raises:
+        User.DoesNotExist: If the user does not exist.
+    """
+    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    visiting_user = User.objects.get(id=id)
+    reports = Report.objects.filter(user=visiting_user)
+    appointments = Appointment.objects.filter(user=visiting_user)
+    previous_appointments_count = len(appointments)
+    return render(
+        request,
+        "home/patient_single.html",
+        context={
+            "user": user,
+            "visiting_user": visiting_user,
+            "reports": reports,
+            "appointments": appointments,
+            "previous_appointments_count": previous_appointments_count,
+            "session": request.session.get("user"),
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        },
+    )
+
 # Index and landing pages end
 
 
@@ -434,6 +505,26 @@ def approve_doctor(request, sub):
     return redirect(reverse("admin"))
 
 
+def doctor_rating(request):
+    """
+    Rate a doctor.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: A redirect response to the "patient" page.
+    """
+    data = json.loads(request.body.decode("utf-8"))
+    user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    
+    doctor = User.objects.get(id=data["doctor_id"])
+    rating, created = Rating.objects.get_or_create(user=user, doctor=doctor)
+    rating.rating = data["rating"]
+    rating.save()
+    return redirect(reverse("patient"))
+
+
 def appointment_visited(request):
     """
     Marks the appointment as visited and updates the remarks.
@@ -527,6 +618,25 @@ def appointment(request):
         except Exception as e:
             print("Exception: ", e)
             return redirect(reverse('index'))
+        
+
+def patient_prescription(request, id):
+    """
+    Renders the prescription page for the patient.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        id (int): The ID of the patient.
+
+    Returns:
+        HttpResponse: The rendered prescription page.
+    """
+    data = json.loads(request.body.decode("utf-8"))
+    report = Report.objects.get(id=id)
+    report.prescription = data["prescription"]
+    report.save()
+    return JsonResponse({"success": True})
+    
 
 # Functions for the landing pages end
 
@@ -598,9 +708,7 @@ def predict_doctor_symptom(request):
     report.symptoms = symptoms
 
     response = chat.suitable_doctor_symptom(symptoms, user.latitude, user.longitude)
-    doctor = User.objects.get(id=response["doctor_id"])
     report.predicted_disease = response["predicted_disease"]
-    report.doctor = doctor
     report.save()
     try:
         print("Doctor:", doctor)

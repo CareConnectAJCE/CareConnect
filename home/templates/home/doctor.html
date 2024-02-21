@@ -11,7 +11,7 @@
     <style>
         .doctor_dashboard {
             margin: 10%;
-            height: 80vh;
+            min-height: 80vh;
             font-family: Arial;
         }
     </style>
@@ -86,113 +86,125 @@
         <hr>
         <div class="row">
             <div class="col-md-12">
-                <h2 class="mb-4 mt-4">Upcoming Appointments</h2>
-                <div class="table-responsive mb-4">
-                    <table class="table text-center">
-                        <thead>
-                            <tr>
-                                <th>Patient</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Reason</th>
-                                <th>Remarks</th>
-                                <th>Mark Visited</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if appointments|length >= 1 %} 
-                                {% for appointment in appointments %} 
-                                    {% if appointment.visited != True %}
-                                        <tr>
-                                            <td>{{appointment.user.first_name}} {{appointment.user.last_name}}</td>
-                                            <td>
-                                                {{appointment.appointment_time|date:"Y-m-d"}}
-                                            </td>
-                                            <td>
-                                                {{appointment.appointment_time|time:"g:i A"}}
-                                            </td>
-                                            <td>{{appointment.reason}}</td>
-                                            <form
-                                                action="{% url 'mark_visited' %}"
-                                                method="POST"
-                                            >
-                                                {% csrf_token %}
-                                                <td>
-                                                    <input
-                                                        type="text"
-                                                        name="remarks"
-                                                        class="form-control"
-                                                        placeholder="Remarks"
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <input
-                                                        type="hidden"
-                                                        name="appointment_id"
-                                                        value="{{appointment.id}}"
-                                                    />
-                                                    <button
-                                                        type="submit"
-                                                        class="btn btn-outline-success"
-                                                    >
-                                                        <i class="fa fa-check text-success"></i>
-                                                    </button>
-                                                </td>
-                                            </form>
-
-                                        </tr>
-                                    {% endif %} 
-                                {% endfor %} 
-                            {% else %}
-                                <tr>
-                                    <td colspan="6">No upcoming appointments</td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-                <hr>
-                <h2 class="mb-4 mt-4">History</h2>
-                <div class="table-responsive">
-                    <table class="table text-center">
-                        <thead>
-                            <tr>
-                                <th>Patient</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Reason</th>
-                                <th>Remarks</th>
-                                <th>Visited Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if history|length >= 1 %} 
-                                {% for appointment in history %}
+                <div class="card mb-3">
+                    <div class="card-header"><h5 class="card-title text-capitalize">Upcoming Appointments</h5></div>
+                    <div class="card-body">
+                        <div class="table-responsive mb-4">
+                            <table class="table table-striped text-center">
+                                <thead>
                                     <tr>
-                                        <td>
-                                            {{appointment.user.first_name}}
-                                            {{appointment.user.last_name}}
-                                        </td>
-                                        <td>
-                                            {{appointment.appointment_time|date:"Y-m-d"}}
-                                        </td>
-                                        <td>
-                                            {{appointment.appointment_time|time:"g:i A"}}
-                                        </td>
-                                        <td>{{appointment.reason}}</td>
-                                        <td>{{appointment.remarks}}</td>
-                                        <td>
-                                            {{appointment.visited_time|date:"Y-m-d g:i A"}}
-                                        </td>
+                                        <th>Patient</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Reason</th>
+                                        <th>Remarks</th>
+                                        <th>Mark Visited</th>
                                     </tr>
-                                {% endfor %} 
-                            {% else %}
-                                <tr>
-                                    <td colspan="6">No history</td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody>
+                                    {% if appointments|length >= 1 %} 
+                                        {% for appointment in appointments %} 
+                                            {% if appointment.visited != True %}
+                                                <tr>
+                                                    <td>
+                                                        <a href="{% url 'patient_single' appointment.user.id %}">
+                                                            {{appointment.user.first_name}} {{appointment.user.last_name}}
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        {{appointment.appointment_time|date:"Y-m-d"}}
+                                                    </td>
+                                                    <td>
+                                                        {{appointment.appointment_time|time:"g:i A"}}
+                                                    </td>
+                                                    <td>{{appointment.reason}}</td>
+                                                    <form
+                                                        action="{% url 'mark_visited' %}"
+                                                        method="POST"
+                                                    >
+                                                        {% csrf_token %}
+                                                        <td>
+                                                            <input
+                                                                type="text"
+                                                                name="remarks"
+                                                                class="form-control"
+                                                                placeholder="Remarks"
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <input
+                                                                type="hidden"
+                                                                name="appointment_id"
+                                                                value="{{appointment.id}}"
+                                                            />
+                                                            <button
+                                                                type="submit"
+                                                                class="btn btn-outline-success"
+                                                            >
+                                                                <i class="fa fa-check text-success"></i>
+                                                            </button>
+                                                        </td>
+                                                    </form>
+
+                                                </tr>
+                                            {% endif %} 
+                                        {% endfor %} 
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6">No upcoming appointments</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-header"><h5 class="card-title text-capitalize">History</h5></div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped text-center">
+                                <thead>
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Reason</th>
+                                        <th>Remarks</th>
+                                        <th>Visited Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if history|length >= 1 %} 
+                                        {% for appointment in history %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'patient_single' appointment.user.id %}">
+                                                        {{appointment.user.first_name}} {{appointment.user.last_name}}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    {{appointment.appointment_time|date:"Y-m-d"}}
+                                                </td>
+                                                <td>
+                                                    {{appointment.appointment_time|time:"g:i A"}}
+                                                </td>
+                                                <td>{{appointment.reason}}</td>
+                                                <td>{{appointment.doctor_remarks}}</td>
+                                                <td>
+                                                    {{appointment.visited_time|date:"Y-m-d g:i A"}}
+                                                </td>
+                                            </tr>
+                                        {% endfor %} 
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6">No history</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
