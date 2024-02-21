@@ -42,6 +42,24 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                                 </li>
+                                {% if session %}
+                                    {% if user.is_doctor %}
+                                    <li class="nav-item">
+                                        <a style="margin-right: 10px;" class="nav-link" href="{% url 'doctor' %}">Dashboard</a>
+                                    </li>
+                                    {% else %}
+                                    <li class="nav-item">
+                                        <a style="margin-right: 10px;" class="nav-link" href="{% url 'patient' %}">Dashboard</a>
+                                    </li>
+                                    {% endif %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                                    </li>
+                                {% else %}
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                                    </li>
+                                {% endif %}
                             </ul>
                         </div>
                         {% block profile %}{% endblock %}

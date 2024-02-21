@@ -4,7 +4,6 @@
 
 {% block profile %}
 <p class="mt-3 mr-2">Hi, {{user.first_name}} {{user.last_name}}!</p>
-    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
 {% endblock %} 
 
 {% block extra_css %}
@@ -107,7 +106,10 @@
                                 {% for appointment in appointments %} 
                                     {% if appointment.visited != True %}
                                         <tr>
-                                            <td>{{appointment.doctor.userinfo.name}}</td>
+                                            <td>
+                                                {{appointment.doctor.first_name}}
+                                                {{appointment.doctor.last_name}}
+                                            </td>
                                             <td>
                                                 {{appointment.appointment_time|date:"Y-m-d"}}
                                             </td>
@@ -139,7 +141,7 @@
                                 {% endfor %} 
                             {% else %}
                                 <tr>
-                                    <td colspan="6">No upcoming appointments</td>
+                                    <td colspan="5">No upcoming appointments</td>
                                 </tr>
                             {% endif %}
                         </tbody>
