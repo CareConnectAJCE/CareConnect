@@ -330,7 +330,6 @@ class Chat:
         Reply with the ID of the doctor who can help the patient and \
         the predicted disease based on the symptoms.
         """
-        print(doctor_details_prompt)
 
         model = ChatOpenAI(temperature=0.3)
 
@@ -361,7 +360,6 @@ class Chat:
         )
 
         response = chain.invoke({"query": doctor_details_prompt})
-        print(response)
         return {
             "doctor_id": response["doctor_id"],
             "predicted_disease": response["predicted_disease"],

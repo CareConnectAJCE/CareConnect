@@ -175,7 +175,17 @@ def contact(request):
     :return: The rendered contact page
     :rtype: HttpResponse
     """
-    return render(request, "home/contact.html")
+    if request.session.get("user"):
+        user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+        if user.is_superuser:
+            return redirect(reverse("admin"))
+    else:
+        user = None
+    return render(request, "home/contact.html", context={
+            "session": request.session.get("user"),
+            "user": user,
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        },)
 
 
 def about(request):
@@ -188,7 +198,17 @@ def about(request):
     Returns:
     - HttpResponse object representing the rendered about page
     """
-    return render(request, "home/about.html")
+    if request.session.get("user"):
+        user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+        if user.is_superuser:
+            return redirect(reverse("admin"))
+    else:
+        user = None
+    return render(request, "home/about.html", context={
+            "session": request.session.get("user"),
+            "user": user,
+            "pretty": json.dumps(request.session.get("user"), indent=4),
+        },)
 
 
 def doctor_view(request):
@@ -470,12 +490,18 @@ def appointment(request):
 
     """
     if request.method == "POST":
+        data = json.loads(request.body.decode("utf-8"))
         user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
-        doctor = User.objects.get(id=request.POST["doctor_id"])
+        doctor = User.objects.get(id=data["doctor_id"])
+        report = Report.objects.filter(
+                user__sub=request.session["user"]["userinfo"]["sub"]
+            ).last()
+        symptoms = report.symptoms
         appointment = Appointment.objects.create(
             user=user,
             doctor=doctor,
-            scheduled_time=request.POST["appointment_time"],
+            appointment_time=data["appointment_time"],
+            reason=f'Patient has {symptoms} and needs to see a doctor.'
         )
         appointment.save()
         return redirect(reverse("patient"))
@@ -562,8 +588,10 @@ def predict_doctor_symptom(request):
     Returns:
         JsonResponse: A JSON response containing the available times for the predicted doctor.
     """
-    symptoms = request.POST.get("symptoms")
+    data = json.loads(request.body.decode("utf-8"))
+    symptoms = data["symptoms"]
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
+    print("Symptoms: ", symptoms)
 
     # save symptoms to the last report
     report = Report.objects.filter(user=user).last()
@@ -580,15 +608,21 @@ def predict_doctor_symptom(request):
     except Exception as e:
         print("Exc: ", e)
 
+    doctor_details = {
+        "id": doctor.id,
+        "username": doctor.username,
+    }
+    available_times = [
+        f"{date.today() + timedelta(days=i)}" for i in range(1, 8)
+    ]
+
+    print("Available times: ", available_times)
+    print("Doctor details: ", doctor_details)
+
     return JsonResponse(
     {
-        "available_times": [
-            f"{date.today() + timedelta(days=i)}" for i in range(1, 8)
-        ],
-        "doctor": {
-            "id": doctor.id,
-            "username": doctor.username,
-        }
+        "available_times": available_times,
+        "doctor": doctor_details,
     }
 )
 
