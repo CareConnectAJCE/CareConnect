@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 class User(AbstractUser):
@@ -6,6 +7,7 @@ class User(AbstractUser):
     is_doctor = models.BooleanField(default=False)
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
+    picture = models.CharField(max_length=255, null=True)
 
     def __str__(self):
         return self.username
@@ -48,11 +50,20 @@ class Conversation(models.Model):
     
 class Report(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="report_user")
-    doctor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="report_doctor")
     predicted_disease = models.CharField(max_length=255, null=True)
     symptoms = models.TextField(null=True)
-    scheduled_time = models.DateTimeField(null=True)
     prescription = models.TextField(null=True)
 
     def __str__(self):
-        return f"{self.user.username} -> {self.doctor.username} ({self.scheduled_time}) for {self.predicted_disease}"
+        return f"{self.user.username} ->  for {self.predicted_disease}"
+    
+class Rating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rating_user")
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rating_doctor")
+    rating = models.FloatField(
+        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)],
+        null=True
+    )
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.doctor.username} ({self.rating})"

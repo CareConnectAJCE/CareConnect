@@ -1,6 +1,6 @@
 authlib==1.2.1
 django==4.2.6
-django-mathfilters
+django-mathfilters==1.0.0
 python-dotenv==0.21.1
 requests==2.31.0
 openai==1.10.0
