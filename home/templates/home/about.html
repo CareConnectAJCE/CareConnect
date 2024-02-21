@@ -1,6 +1,12 @@
 {% extends 'home/layout.html' %}
 {% load static %}
 
+{% block profile %}
+    {% if session %}
+        <p class="mt-3 mr-2">Hi, {{user.first_name}} {{user.last_name}}!</p>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <section class="about_us single_about_padding">
         <div class="container">

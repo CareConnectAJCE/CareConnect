@@ -3,7 +3,6 @@
 
 {% block profile %}
     <p class="mt-3 mr-2">Hi, {{user.first_name}} {{user.last_name}}!</p>
-    <a class="btn_2 d-none d-lg-block" href="{% url 'logout' %}">Logout</a>
 {% endblock %}
 
 {% block extra_css %}
@@ -74,7 +73,10 @@
 
                         <!-- Doctor Appointment Section (Hidden by default) -->
                         <div id="doctorAppointmentSection" class="mt-4 d-none">
-                            <h6 class="card-subtitle mb-2" id="doctor_name"></h6>
+                            <div class="mb-3">
+                                <h6 class="card-subtitle mt-2 mb-2 text-muted">Doctor:</h6>
+                                <h6 class="card-subtitle mb-2" id="doctor_name"></h6>
+                            </div>
                             <h6 class="card-subtitle mb-2 text-muted">Choose Appointment Time:</h6>
                             <!-- Add options for appointment times from the API response -->
                             <select class="form-control" id="appointmentTime" name="appointmentTime">
@@ -101,23 +103,29 @@
 
         // load symptoms with the current symptoms which are list items
         const currentSymptoms = document.getElementById('selectedSymptoms').getElementsByTagName('li');
-        for (const symptom of currentSymptoms)
-            symptoms += symptom.textContent + ',';
+        for (const symptom of currentSymptoms) {
+            if (symptom.textContent)    
+                symptoms += symptom.textContent + ',';
+        }
 
         const additionalSymptoms = document.getElementsByClassName('additionalSymptomsList');
-        for (const symptom of additionalSymptoms)
-            if (symptom.isChecked)
-                symptoms += symtom.textContent + ',';
+        for (const symptom of additionalSymptoms) {
+            console.log(symptom.value);
+            if (symptom.checked) {
+                console.log(symptom.value);
+                symptoms += symptom.value + ',';
+            }
+        }
         getDoctor(symptoms)
     }
 
     function scheduleAppointment() {
-        fetch('appointment/', {
+        fetch('/appointment/', {
             method: 'POST',
-            body: {
-                doctor_id: doctorId,
-                appointment_time: document.getElementById('appointmentTime').value
-            },
+            body: JSON.stringify({
+                'doctor_id': doctorId,
+                'appointment_time': document.getElementById('appointmentTime').value
+            }),
             headers: {
                 'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
             }
@@ -134,15 +142,21 @@
     }
 
     function getDoctor(symptoms) {
-            console.log(symptoms);
             fetch(`/predict/doctor`, {
                 method: 'POST',
-                body: {
-                    'symptoms':symptoms
-                },
+                body: JSON.stringify({
+                    'symptoms': symptoms
+                }),
                 headers: {
-                    'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
+                    'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                    'Content-Type': 'application/json'
                 }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
             })
             .then(data => {
                 // Handle response, e.g., populate appointment times
@@ -150,7 +164,7 @@
                 const appointmentTimes = data["available_times"];
                 const appointmentTimeSelect = document.getElementById('appointmentTime');
 
-                document.getElementById("doctor_id").innerHTML = data["doctor"]["username"];
+                document.getElementById("doctor_name").innerHTML = data["doctor"]["username"];
                 doctorId = data["doctor"]["id"];
 
                 for (const time of appointmentTimes) {
@@ -159,12 +173,12 @@
                     option.textContent = time;
                     appointmentTimeSelect.appendChild(option);
                 }
+                document.getElementById('doctorAppointmentSection').classList.remove('d-none');
             })
             .catch(error => {
                 // Handle error, e.g., display error message
                 console.error('There was a problem with the fetch operation:', error);
             });
-            document.getElementById('doctorAppointmentSection').classList.remove('d-none');
     }
 </script>
 {% endblock %}
