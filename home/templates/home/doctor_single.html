@@ -1,0 +1,133 @@
+<!-- doctor_single.html -->
+{% extends 'home/layout.html' %}
+{% load static %}
+{% load mathfilters %}
+
+{% block profile %}
+<p class="mt-3 mr-2">Hi, {{user.first_name}} {{user.last_name}}!</p>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .doctor_dashboard {
+            margin: 10%;
+            height: 80vh;
+            font-family: Arial;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container doctor_dashboard">
+    <div class="row">
+        <div class="container">
+            <div>
+                <a href="{% url 'patient' %}" class="btn btn-outline-primary mb-3">< Go Back</a>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="row no-gutters">
+                            <div class="col-md-4 px-2 py-2 text-center">
+                                <img src="{{doctor.picture}}" alt="Doctor's Profile Picture" class="img-fluid" style="height: 80%;">
+                                <h4 class="card-title">{{doctor.user.first_name}} {{doctor.user.last_name}}</h4>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="card-text"><strong>Specialization:</strong> {{doctor.specialization}}</p>
+                                            <p class="card-text"><strong>Experience:</strong> {{doctor.experience}} years</p>
+                                            <p class="card-text"><strong>Address:</strong> {{doctor.address}}</p>
+                                            <p class="card-text"><strong>Phone:</strong> {{doctor.phone}}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="card-text"><strong>Email:</strong> {{doctor.email}}</p>
+                                            <p class="card-text"><strong>Rating:</strong> {{avg_rating}}</p>
+                                            {% if rating_count != 0 %}    
+                                                <div class="rating-star mb-3">
+                                                    <span title="{{ rating_count }}/5">
+                                                        <!-- By default the star is full else it is empty otherwise it is half -->
+                                                        <i class="fa fa-star{% if rating_count < 0.5%}-o{% elif rating_count >= 0.5 and rating_count < 1 %}-half-o{% endif %} text-success" aria-hidden="true"></i>
+                                                        <i class="fa fa-star{% if rating_count < 1.5%}-o{% elif rating_count >= 1.5 and rating_count < 2 %}-half-o{% endif %} text-success" aria-hidden="true"></i>
+                                                        <i class="fa fa-star{% if rating_count < 2.5%}-o{% elif rating_count >= 2.5 and rating_count < 3 %}-half-o{% endif %} text-success" aria-hidden="true"></i>
+                                                        <i class="fa fa-star{% if rating_count < 3.5%}-o{% elif rating_count >= 3.5 and rating_count < 4 %}-half-o{% endif %} text-success" aria-hidden="true"></i>
+                                                        <i class="fa fa-star{% if rating_count < 4.5%}-o{% elif rating_count >= 4.5 and rating_count < 5 %}-half-o{% endif %} text-success" aria-hidden="true"></i>
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                            {% csrf_token %}
+                                            <div class="form-group d-flex align-items-center">
+                                                <input type="text" id="doctor_id" value="{{doctor.user.id}}" hidden>
+                                                <label for="rating" class="mr-2">Rate:</label>
+                                                <select class="form-control mr-2" id="rating" name="rating">
+                                                    <option value="1">1 star</option>
+                                                    <option value="2">2 stars</option>
+                                                    <option value="3">3 stars</option>
+                                                    <option value="4">4 stars</option>
+                                                    <option value="5">5 stars</option>
+                                                </select>
+                                                <button onclick="addrating()" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Reason</th>
+                                <th>Patient</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in previous_appointments %}
+                                <tr>
+                                    <td>{{ appointment.appointment_time }}</td>
+                                    <td>{{ appointment.reason }}</td>
+                                    <td>{{ appointment.user.first_name }} {{ appointment.user.last_name }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- use js to post request the rating -->
+<script>
+    function addrating() {
+        var rating = document.getElementById('rating').value;
+        var doctor_id = document.getElementById('doctor_id').value;
+        fetch(`/doctor/rate/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.getElementsByName('csrfmiddlewaretoken')[0].value
+            },
+            body: JSON.stringify({
+                rating: parseInt(rating),
+                doctor_id: doctor_id
+            })
+        })
+        .then(function(response) {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}

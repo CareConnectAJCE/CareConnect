@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
-import os
 from dotenv import load_dotenv, find_dotenv
+import os
 
 # Load environment definition file
 ENV_FILE = find_dotenv()
@@ -47,6 +47,7 @@ AUTH_USER_MODEL = 'home.User'
 
 INSTALLED_APPS = [
     "home",
+    "mathfilters",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

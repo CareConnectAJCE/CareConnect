@@ -1,0 +1,171 @@
+<!-- patient_single.html -->
+{% extends 'home/layout.html' %}
+{% load static %}
+{% load mathfilters %}
+
+{% block profile %}
+<p class="mt-3 mr-2">Hi, {{user.first_name}} {{user.last_name}}!</p>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .patient_dashboard {
+            margin: 10%;
+            min-height: 80vh;
+            font-family: Arial;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container patient_dashboard">
+    <div class="row">
+        <div class="container">
+            <div>
+                {% if user.is_doctor %}
+                    <a href="{% url 'doctor' %}" class="btn btn-outline-primary mb-3">< Go Back</a>
+                {% else %}
+                    <a href="{% url 'patient' %}" class="btn btn-outline-primary mb-3">< Go Back</a>
+                {% endif %}
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="row no-gutters">
+                            <div class="col-md-4 px-2 py-2 text-center">
+                                <img src="{{visiting_user.picture}}" alt="Patient's Profile Picture" class="img-fluid" style="height: 80%;">
+                                <h4 class="card-title text-capitalize">{{visiting_user.first_name}} {{visiting_user.last_name}}</h4>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p class="card-text text-capitalize font-weight-bold mb-0">Email:</p>
+                                            <p class="card-text">{{visiting_user.email}}</p>
+                                            <p class="card-text text-capitalize font-weight-bold mb-0">First Name:</p>
+                                            <p class="card-text">{{visiting_user.first_name}}</p>
+                                            <p class="card-text text-capitalize font-weight-bold mb-0">Last Name:</p>
+                                            <p class="card-text">{{visiting_user.last_name}}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card text-center">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">Previous Doctor Interactions</h5>
+                                                    <p class="card-text display-4">{{ previous_appointments_count }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title text-capitalize">Reports</h5>
+
+                            <!-- use table to represent report. it has predicted disease, symptoms and prescription -->
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Report ID</th>
+                                        {% if user.is_doctor %}
+                                            <th scope="col">Predicted Disease</th>
+                                        {% endif %}
+                                        <th scope="col">Symptoms</th>
+                                        <th scope="col">Prescription</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for report in reports %}
+                                    <tr>
+                                        <th scope="row">{{ report.id }}</th>
+                                        {% if user.is_doctor %}
+                                            <td>{{ report.predicted_disease }}</td>
+                                        {% endif %}
+                                        <td>{{ report.symptoms }}</td>
+                                        {% if user.is_doctor %}    
+                                            <td>
+                                                <input type="text" name="prescription" placeholder="Add Prescription" value="{{ report.prescription }}">
+                                                <button class="btn btn-success ml-2" id="report_{{report.id}}" onclick="addPrescription()">Save</button>
+                                            </td>
+                                        {% else %}
+                                            <td>{{ report.prescription }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title text-capitalize">Appointments</h5>
+
+                            <!-- use table to represent appointment. it has date, time, doctor and status -->
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Appointment ID</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Doctor</th>
+                                        <th scope="col">Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in appointments %}
+                                    <tr>
+                                        <th scope="row">{{ appointment.id }}</th>
+                                        <td>{{ appointment.appointment_time }}</td>
+                                        <td>{{ appointment.doctor }}</td>
+                                        <td>{{ appointment.doctor_remarks }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // use js to add prescription
+    function addPrescription() {
+        const report_id = event.target.id.split('_')[1];
+        const prescription = document.querySelector(`#report_${report_id}`).previousElementSibling.value;
+        fetch(`/patient/prescription/${report_id}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': `{{ csrf_token }}`
+            },
+            body: JSON.stringify({
+                prescription: prescription
+            })
+        })
+        .then(function(response) {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}
