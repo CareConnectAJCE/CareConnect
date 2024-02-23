@@ -360,8 +360,12 @@ def patient_single_view(request, id):
     """
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
     visiting_user = User.objects.get(id=id)
-    reports = Report.objects.filter(user=visiting_user)
-    appointments = Appointment.objects.filter(user=visiting_user)
+    if user.is_doctor:
+        reports = Report.objects.filter(user=visiting_user, doctor=user)
+        appointments = Appointment.objects.filter(user=visiting_user, doctor=user)
+    else:
+        reports = Report.objects.filter(user=visiting_user)
+        appointments = Appointment.objects.filter(user=visiting_user)
     previous_appointments_count = len(appointments)
     return render(
         request,
