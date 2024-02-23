@@ -1,69 +1,99 @@
-# CareConnect
+<div style="background-color: white;">
+    <p align="center">
+      <a rel="noopener noreferrer" target="_blank" href="https://careconnect.dev">
+        <img src="/home/static/home/img/logo.png" />
+      </a>
+    </p>
+</div>
 
-CareConnect is a semester 8 project, designed to act as a sympathetic medical chatbot. Patients can interact with the chatbot to communicate their medical issues. The chatbot will generate a detailed report and recommend a suitable doctor for the patient. The report will be forwarded to the designated doctor, along with the patient's contact details and available time slots for a consultation. The patient's medical history will be securely stored and managed.
+CareConnect is a sympathetic medical chatbot designed to assist patients in communicating their medical issues. The chatbot generates a detailed report and recommends a suitable doctor for the patient. The report is forwarded to the designated doctor along with the patient's contact details and available time slots for consultation. Patient medical history is securely stored and managed.
 
 ---
 
-## **Installation and Development**
+## Installation and Development
 
-### To run CareConnect, follow these steps:
+### Running CareConnect:
 
 1. Clone this repository to your local machine.
 2. Navigate to the MainProject directory.
-3. Create a virtual environment: ```python3 -m venv venv```
-4. Activate the venv: 
-    - For mac/linux:
-        ```. venv/bin/activate```
-    - For Windows:
-        ```. venv/Scripts/activate```
-5. Install the required dependencies by running the command `pip install -r requirements.txt`.
-6. Initialise the env file:
-    - Run ```cp dotenv .env```
-    - Copy the credentials from the Auth0 application and fill it in the placeholders
-7. Checkout the ```localdev``` branch (```additional-features``` for testing out the eye disease).
-8. Create migrations using the command `python manage.py makemigrations`
-9. Migrate all the migrations to the model using the command `python manage.py migrate`
-10. Start the Django development server using the command `python manage.py runserver`.
+3. Create a virtual environment:
+    - Mac/Linux:
+      ```bash
+      python3 -m venv venv
+      ```
+    - Windows:
+      ```bash
+      python -m venv venv
+      ```
+4. Activate the virtual environment:
+    - Mac/Linux:
+      ```bash
+      source venv/bin/activate
+      ```
+    - Windows:
+      ```bash
+      source venv\Scripts\activate
+      ```
+5. Install required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+6. Initialize the environment file:
+   ```bash
+   cp dotenv .env
+   ```
+   - Fill in the credentials from the Auth0 application and also add the OpenAI API Key.
+7. Checkout the `localdev` branch (`additional-features` for testing eye disease).
+8. Create migrations:
+   ```bash
+   python manage.py makemigrations
+   ```
+9. Migrate the changes:
+   ```bash
+   python manage.py migrate
+   ```
+10. Start the Django development server:
+    ```bash
+    python manage.py runserver
+    ```
 11. Access the application at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-### Returning users:
+### Returning Users:
 
-1. Activate the venv
-2. Change the branch
-3. Make migrations
-4. Migrate the changes
-5. Run the server
+1. Activate the virtual environment.
+2. Change the branch.
+3. Make migrations.
+4. Migrate the changes.
+5. Run the server.
 
-### Exit the app:
+### Exiting the App:
 
-1. Use keyboard interrupt to exit the Django server: 
-    - ```ctrl + C```
-2. Deactivate the venv:
-    - ```deactivate```
+1. Use `ctrl + C` to exit the Django server.
+2. Deactivate the virtual environment:
+    - ```bash
+      deactivate
+      ```
 
+## Contributing:
 
-# **Contributing:**
-
-If you'd like to contribute to CareConnect, please follow these steps:
+To contribute to CareConnect, follow these steps:
 
 1. Fork the repository on GitHub.
-2. Create a new branch from ```localdev``` branch as parent with a descriptive name.
-3. Make your changes and commit them with clear, concise messages.
-4. Push the changes to your fork.
-5. Create a pull request, explaining the changes made to our localdev branch.
+2. Create a new branch from `localdev` with a descriptive name.
+3. Make changes and commit them with clear, concise messages.
+4. Push changes to your fork.
+5. Create a pull request, explaining the changes made to the `localdev` branch.
 
 ---
 
-# **License:**
+## License:
 
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-# **Contact:**
+## Contact:
 
 For further information or inquiries, please contact:
 
 - [CareConnect](mailto:careconnect.ajce@gmail.com)
-
----
