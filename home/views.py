@@ -360,8 +360,12 @@ def patient_single_view(request, id):
     """
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
     visiting_user = User.objects.get(id=id)
-    reports = Report.objects.filter(user=visiting_user)
-    appointments = Appointment.objects.filter(user=visiting_user)
+    if user.is_doctor:
+        reports = Report.objects.filter(user=visiting_user, doctor=user)
+        appointments = Appointment.objects.filter(user=visiting_user, doctor=user)
+    else:
+        reports = Report.objects.filter(user=visiting_user)
+        appointments = Appointment.objects.filter(user=visiting_user)
     previous_appointments_count = len(appointments)
     return render(
         request,
@@ -710,6 +714,7 @@ def predict_doctor_symptom(request):
     response = chat.suitable_doctor_symptom(symptoms, user.latitude, user.longitude)
     doctor = User.objects.get(id=response["doctor_id"])
     report.predicted_disease = response["predicted_disease"]
+    report.doctor = doctor
     report.save()
     try:
         print("Doctor:", doctor)
