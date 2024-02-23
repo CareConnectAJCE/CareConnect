@@ -710,6 +710,7 @@ def predict_doctor_symptom(request):
     response = chat.suitable_doctor_symptom(symptoms, user.latitude, user.longitude)
     doctor = User.objects.get(id=response["doctor_id"])
     report.predicted_disease = response["predicted_disease"]
+    report.doctor = doctor
     report.save()
     try:
         print("Doctor:", doctor)
