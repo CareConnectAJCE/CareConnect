@@ -9,6 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('home', '0020_user_picture'),
+        ('home', '0021_merge_0017_create_superuser_0020_user_picture')
     ]
 
     operations = [
