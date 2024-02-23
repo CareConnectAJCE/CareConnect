@@ -50,6 +50,7 @@ class Conversation(models.Model):
     
 class Report(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="report_user")
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="report_doctor", null=True)
     predicted_disease = models.CharField(max_length=255, null=True)
     symptoms = models.TextField(null=True)
     prescription = models.TextField(null=True)
