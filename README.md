@@ -43,7 +43,7 @@ CareConnect is a sympathetic medical chatbot designed to assist patients in comm
    cp dotenv .env
    ```
    - Fill in the credentials from the Auth0 application and also add the OpenAI API Key.
-7. Checkout the `localdev` branch (`additional-features` for testing eye disease).
+7. Checkout the `localdev` branch (`additional-features` for testing eye conjunctivitis and tonsillitis).
 8. Create migrations:
    ```bash
    python manage.py makemigrations
