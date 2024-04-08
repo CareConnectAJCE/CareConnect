@@ -177,7 +177,7 @@ class Predictions:
         # Set a threshold of 0.5 to convert the prediction to class labels
         predicted = 1 if prediction > 0.5 else 0
 
-        if predicted == 1:
+        if predicted == 0:
             return "Tonsillitis"
-        elif predicted == 0:
+        elif predicted == 1:
             return "Healthy"
