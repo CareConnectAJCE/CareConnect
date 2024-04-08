@@ -1,0 +1,119 @@
+{% extends "detection/layout.html" %} {% load mathfilters %} {% load static %}
+	{% block content %}
+		<div class="instruction-text">
+			<h3 class="heading">Get Started:</h3>
+			<p class="mb-3">
+				<span class="bold">CareConnect Throat Care</span> is an application that
+				uses machine learning to detect visual symptoms of Tonsillitis
+				from eye images. Simply snap a photo of your throat to get started.
+			</p>
+
+			<ol>
+				<li class="mb-2">Take a photo of your throat and upload.</li>
+				<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+				<form
+					method="post"
+					enctype="multipart/form-data"
+				>
+					{% csrf_token %}
+					<p>
+						<label for="myFile" class="custom-file-upload">
+							<i class="fa fa-upload"></i>Upload New Image
+						</label>
+						<input type="file" id="myFile" name="file" />
+						<script>
+							$("#myFile").change(function () {
+								var i = $(this).prev("label").clone();
+								var file = $("#myFile")[0].files[0].name;
+								$(this).prev("label").text(file);
+							});
+						</script>
+						<script>
+							$("#myFile").change(function () {
+								var i = $("#button_label").clone();
+								var file = $("#myFile")[0].files[0].name;
+								$("#button_label").text(file);
+							});
+						</script>
+					</p>
+					<li class="mt-3">
+						Press the submit button to see the prediction. The model will
+						check for visual symptoms of Tonsillitis.
+					</li>
+					<br />
+					<p><input type="submit" value="Submit" /></p>
+				</form>
+			</ol>
+		</div>
+		<hr />
+		{% if filename %}
+			{% if prediction %} 
+				{% if prediction == "Healthy" %}
+					<p>No visual symptoms of Tonsillitis detected</p>
+				{% else %}
+					<p>Tonsillitis found</p>
+				{% endif %}
+				<hr />
+				<p>
+					Please remember that this application is a tool to aid in decision making,
+					and does not represent an official medical diagnosis.
+				</p>
+			{% endif %} 
+		{% endif %} 
+	{% endblock content %}
+{% block image_container %}
+	<div class="screen-home">
+		<div class="background-image">
+			<div class="wallpaper">
+				<img
+					class="wallpaper-image"
+					src="{% static 'detection/contact_wallpaper.png' %}"
+				/>
+			</div>
+
+			<div class="icon-container">
+				{% if filename|length == 0 %}
+					<p>
+						<label
+							id="button_label"
+							for="myFile"
+							class="custom-file-upload"
+						>
+							<i class="fa fa-upload"></i>Upload New Image
+						</label>
+					</p>
+				{% endif %} 
+				{% if filename %}	
+					<img
+						class="user-picture"
+						src="{% static 'detection/uploads/'|add:filename %}"
+					/>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock image_container %} 
+{% block extra_info_container %}
+	<hr />
+	<br />
+	{% if filename %}
+		<div class="symptom-links">
+			<p>
+				<a
+					href="https://www.mayoclinic.org/diseases-conditions/tonsillitis/symptoms-causes/syc-20378479"
+					target="_blank"
+					>Tonsillitis symptoms</a
+				>
+			</p>
+		</div>
+		<div class="symptom-links">
+			<p>
+				<a
+					href="https://www.nhsinform.scot/illnesses-and-conditions/ears-nose-and-throat/tonsillitis/"
+					target="_blank"
+					>When to seek medical care</a
+				>
+			</p>
+		</div>
+	{% endif %}
+{% endblock extra_info_container %}

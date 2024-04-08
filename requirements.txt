@@ -12,3 +12,4 @@ numpy==1.26.4
 matplotlib==3.8.3
 keras==2.15.0
 tensorflow==2.15.0
+opencv-python

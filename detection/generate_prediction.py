@@ -1,7 +1,9 @@
 import os
-from matplotlib import image
 import matplotlib.pyplot as plt
 import keras
+import cv2
+import numpy as np
+from matplotlib import image
 from keras.preprocessing.image import load_img
 from keras.preprocessing.image import img_to_array
 from keras.optimizers.legacy import SGD
@@ -9,6 +11,7 @@ from keras.layers import Dense, Flatten, Input, Dropout
 from keras.applications import VGG16
 
 model_file = os.path.join(os.getcwd(), 'detection', 'static', 'detection', 'model_weights', 'weights-57-0.928.hdf5') 
+throat_model_file = os.path.join(os.getcwd(), 'detection', 'static', 'detection', 'model_weights', 'trained_model.h5')
 
 class Predictions:
     def __init__(self, model = False):
@@ -48,6 +51,7 @@ class Predictions:
 
         return img
     
+
     def get_bottleneck_features(self, save_features=True):
         '''Return image features from output of final VGG16 convolutional layer. 
 
@@ -135,3 +139,45 @@ class Predictions:
         data = image.imread(self.filename)
         plt.imshow(data)
         plt.show()
+
+    def load_throat_model(self, model_file = throat_model_file):
+        self.model = keras.models.load_model(model_file)
+        self.loaded_model = True
+
+    def preprocess_and_extract_features(self, image):
+        
+        # Preprocess the image (e.g., resize, convert to grayscale, etc.)
+        preprocessed_image = cv2.resize(image, (224, 224))
+        preprocessed_image = cv2.cvtColor(preprocessed_image, cv2.COLOR_BGR2GRAY)
+        
+        # Flatten the image to a 1D array as input to the DNN
+        feature_vector = preprocessed_image.flatten()
+        return feature_vector
+    
+    def throat_predict(self, image):
+        # Load the trained model
+        if not self.loaded_model:
+            self.load_throat_model()
+        img_path = os.path.join(os.getcwd(), 'detection', 'static', 'detection', 'uploads', image)
+        img = cv2.imread(img_path)
+
+        # Preprocess the test image and extract features
+        feature_vector = self.preprocess_and_extract_features(img)
+
+        # Reshape the feature vector to match the input shape of the model
+        feature_vector = np.reshape(feature_vector, (1, -1))
+
+        # Normalize the feature values
+        feature_vector = feature_vector / 255.0
+
+        # Make prediction on the preprocessed image
+        prediction = self.model(feature_vector, training=False).numpy()[0][0]
+        print(prediction)
+
+        # Set a threshold of 0.5 to convert the prediction to class labels
+        predicted = 1 if prediction > 0.5 else 0
+
+        if predicted == 1:
+            return "Tonsillitis"
+        elif predicted == 0:
+            return "Healthy"
