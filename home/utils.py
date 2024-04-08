@@ -19,6 +19,94 @@ from .models import Report, Doctor, Conversation
 
 set_verbose(True)
 
+class ScheduleAppointment:
+    """
+    Represents a final chat between a user and a doctor.
+
+    Attributes:
+        user (User): The user participating in the chat.
+        random_no (int): A random number used for session identification.
+        message (String): A message from the final chat
+
+    Methods:
+        schedule_appointment(message): Schedule an appointment based on the user's message.
+        save_report(response): Save the report of the user.
+    """
+    def __init__(self, user, message, random_no):
+        self.user = user
+        self.message = message
+        self.random_no = random_no
+        self.memory = ConversationBufferMemory(return_messages=True)
+        self.memory.load_memory_variables({})
+
+        _input_conversation = Conversation.objects.filter(user=self.user, session_id=self.random_no, is_user_message=True).order_by('id')
+        _output_conversation = Conversation.objects.filter(user=self.user, session_id=self.random_no, is_user_message=False).order_by('id')
+
+        self.message_query = ""
+
+        for i in range(len(_input_conversation)):
+            self.memory.save_context({"input": _input_conversation[i].message_content}, {"output": _output_conversation[i].message_content})
+            self.message_query += "User: " + _input_conversation[i].message_content + "\n" + "Doctor: " + _output_conversation[i].message_content + "\n"
+
+    def save_report(self, response):
+        report = Report.objects.create(
+            user=self.user,
+            symptoms=",".join(response["symptoms"]) if len(response["symptoms"]) > 0 else "",
+            predicted_disease=response["predicted_disease"]
+        )
+        report.save()
+
+    def schedule_appointment(self, message):
+        """
+        Schedule an appointment based on the user's message.
+
+        Args:
+            message (str): The user's message.
+
+        Returns:
+            str: A message indicating that the appointment scheduling process has started.
+        """
+        model = ChatOpenAI(temperature=0.6)
+
+        class Schedule(BaseModel):
+            symptoms: list[str] = Field(
+                description="The list of symptoms the patient has based on the chat history"
+            )
+            predicted_disease: str = Field(
+                description="The disease predicted from the symptoms"
+            )
+
+        parser = JsonOutputParser(pydantic_object=Schedule)
+
+        prompt = PromptTemplate(
+            template="Answer the user query.\n{format_instructions}\n{query}\n",
+            input_variables=["query"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
+        )
+
+        chain = (
+            RunnablePassthrough.assign(
+                history=RunnableLambda(self.memory.load_memory_variables)
+                | itemgetter("history")
+            )
+            | prompt
+            | model
+            | parser
+        )
+
+        response = chain.invoke({"query": self.message_query + "\nUser: " + message})
+
+        report = Report.objects.create(
+            user=self.user,
+            symptoms=(
+                ",".join(response["symptoms"]) if len(response["symptoms"]) > 0 else ""
+            ),
+            predicted_disease=response["predicted_disease"],
+        )
+
+        report.save()
+        return "Starting your appointment scheduling process. Please wait for a moment."
+
 class Chat:
     """
     Represents a chat between a user and a doctor.
@@ -178,7 +266,8 @@ class Chat:
                 if "bye" in result.lower():
                     response = "Bye! Have a nice day😇"
                 elif "i will schedule now!" in result.lower():
-                    response = self.schedule_appointment(
+                    chat = ScheduleAppointment(self.user, user_message, self.random_no)
+                    response = chat.schedule_appointment(
                         "What all symptoms do I have? And what is the predicted disease?"
                     )
                 else:
@@ -198,57 +287,6 @@ class Chat:
             )
 
             return response
-
-    def schedule_appointment(self, message):
-        """
-        Schedule an appointment based on the user's message.
-
-        Args:
-            message (str): The user's message.
-
-        Returns:
-            str: A message indicating that the appointment scheduling process has started.
-        """
-        model = ChatOpenAI(temperature=0.3)
-
-        class Schedule(BaseModel):
-            symptoms: list[str] = Field(
-                description="The list of symptoms the patient has"
-            )
-            predicted_disease: str = Field(
-                description="The disease the doctor thinks the patient has"
-            )
-
-        parser = JsonOutputParser(pydantic_object=Schedule)
-
-        prompt = PromptTemplate(
-            template="Answer the user query.\n{format_instructions}\n{query}\n",
-            input_variables=["query"],
-            partial_variables={"format_instructions": parser.get_format_instructions()},
-        )
-
-        chain = (
-            RunnablePassthrough.assign(
-                history=RunnableLambda(self.memory.load_memory_variables)
-                | itemgetter("history")
-            )
-            | prompt
-            | model
-            | parser
-        )
-
-        response = chain.invoke({"query": message})
-
-        report = Report.objects.create(
-            user=self.user,
-            symptoms=(
-                ",".join(response["symptoms"]) if len(response["symptoms"]) > 0 else ""
-            ),
-            predicted_disease=response["predicted_disease"],
-        )
-        report.save()
-
-        return "Starting your appointment scheduling process. Please wait for a moment."
 
     def get_possible_symptoms(self, symptoms):
             """
@@ -301,7 +339,6 @@ class Chat:
             dict: A dictionary containing the ID of the suitable doctor and the predicted disease.
 
         """
-        print(symptoms)
         doctors = Doctor.objects.all()
 
         doctor_details = ""

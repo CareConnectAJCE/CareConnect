@@ -98,7 +98,11 @@
                         {% if doctors %}    
                             {% for doctor in doctors %}
                                 <tr>
-                                    <td>{{doctor.user.first_name}} {{doctor.user.last_name}}</td>
+                                    <td>
+                                        <a href="{% url 'doctor_single' doctor.user.id %}">
+                                            {{doctor.user.first_name}} {{doctor.user.last_name}}
+                                        </a>
+                                    </td>
                                     <td>{{doctor.user.email}}</td>
                                     <td>{{doctor.phone}}</td>
                                     <td>{{doctor.specialization}}</td>
