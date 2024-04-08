@@ -42,8 +42,11 @@ class ScheduleAppointment:
         _input_conversation = Conversation.objects.filter(user=self.user, session_id=self.random_no, is_user_message=True).order_by('id')
         _output_conversation = Conversation.objects.filter(user=self.user, session_id=self.random_no, is_user_message=False).order_by('id')
 
+        self.message_query = ""
+
         for i in range(len(_input_conversation)):
             self.memory.save_context({"input": _input_conversation[i].message_content}, {"output": _output_conversation[i].message_content})
+            self.message_query += "User: " + _input_conversation[i].message_content + "\n" + "Doctor: " + _output_conversation[i].message_content + "\n"
 
     def save_report(self, response):
         report = Report.objects.create(
@@ -91,7 +94,7 @@ class ScheduleAppointment:
             | parser
         )
 
-        response = chain.invoke({"query": message})
+        response = chain.invoke({"query": self.message_query + "\nUser: " + message})
 
         report = Report.objects.create(
             user=self.user,
