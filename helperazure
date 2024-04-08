@@ -1,0 +1,32 @@
+# Create a web app
+
+az webapp up --resource-group myresourcegroup --location centralindia --plan DjangoPostgres-CareConnect-plan --sku S1 --name careconnect-web-app
+
+# Create subnet for web app
+
+az network vnet subnet create --name Subnetservercareconnectweb --resource-group myresourcegroup --vnet-name myvnet --delegations Microsoft.Web/serverfarms
+
+# Replace myvnet with the virtual network created when creating Azure Database for PostgreSQL flexible server. Replace Subnetserver053958007 to replace with the subnet created for web app.
+
+az webapp vnet-integration add -g myresourcegroup -n careconnect-web-app  --vnet myvnet --subnet Subnetservercareconnectweb
+
+# Configure database information as environment variables
+
+# Use the Azure Database for PostgreSQL flexible server instance name, database name , username , password for the database created in the previous steps
+
+az webapp config appsettings set --settings DJANGO_ENV="production" DBHOST="server053958007.postgres.database.azure.com" DBNAME="postgres" DBUSER="annoyedjay4" DBPASS="hDosfBVTg0oE0oaNOO5sGw"
+
+
+{
+  "connectionString": "postgresql://annoyedjay4:hDosfBVTg0oE0oaNOO5sGw@server053958007.postgres.database.azure.com/flexibleserverdb?sslmode=require",
+  "databaseName": "flexibleserverdb",
+  "host": "server053958007.postgres.database.azure.com",
+  "id": "/subscriptions/5f8390da-1378-456a-986c-96af1537cc67/resourceGroups/myresourcegroup/providers/Microsoft.DBforPostgreSQL/flexibleServers/server053958007",
+  "location": "Central India",
+  "password": "hDosfBVTg0oE0oaNOO5sGw",
+  "resourceGroup": "myresourcegroup",
+  "skuname": "Standard_D2s_v3",
+  "subnetId": "/subscriptions/5f8390da-1378-456a-986c-96af1537cc67/resourceGroups/myresourcegroup/providers/Microsoft.Network/virtualNetworks/myvnet/subnets/Subnetserver053958007",
+  "username": "annoyedjay4",
+  "version": "13"
+}
