@@ -92,7 +92,7 @@ def throat_landing(request):
 
             x = Predictions()
             prediction = x.throat_predict(filename)
-            print("Prediction: ", prediction)
+
             return render(request, 'detection/throat_index.html', context={
                 "filename": filename, 
                 "prediction": prediction, 

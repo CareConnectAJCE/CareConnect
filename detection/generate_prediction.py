@@ -172,12 +172,8 @@ class Predictions:
 
         # Make prediction on the preprocessed image
         prediction = self.model(feature_vector, training=False).numpy()[0][0]
-        print(prediction)
 
-        # Set a threshold of 0.5 to convert the prediction to class labels
-        predicted = 1 if prediction > 0.5 else 0
-
-        if predicted == 0:
-            return "Tonsillitis"
-        elif predicted == 1:
-            return "Healthy"
+        if prediction > 0.5:
+            return f"Tonsillitis"
+        else:
+            return f"Healthy"
