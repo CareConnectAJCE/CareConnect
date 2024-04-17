@@ -83,6 +83,7 @@ def callback(request):
             "sub": sub,
             "first_name": user_info.get("given_name", ""),
             "last_name": user_info.get("family_name", ""),
+            "username": user_info.get("nickname", "")
         }
     )
 
