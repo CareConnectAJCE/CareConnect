@@ -41,6 +41,7 @@ client = OpenAI()
 messages = []
 
 current_time = timezone.now()
+print("Current time: ", current_time)
 
 # Auth0 Views
 
@@ -226,7 +227,7 @@ def doctor_view(request):
     - A rendered HTML template with the doctor dashboard view.
     """
     user = User.objects.get(sub=request.session["user"]["userinfo"]["sub"])
-    appointments = Appointment.objects.filter(doctor=user)
+    appointments = Appointment.objects.filter(doctor=user, appointment_time__gte=current_time, visited=False)
     history = Appointment.objects.filter(
         Q(doctor=user, appointment_time__lt=current_time, visited=True)
         | Q(doctor=user, visited=True)
@@ -329,7 +330,10 @@ def doctor_single_view(request, id):
     rating = Rating.objects.filter(doctor=doctor.user)
     average_rating = rating.aggregate(avg_rating=models.Avg("rating"))
     rating_count = int(average_rating["avg_rating"]) if average_rating["avg_rating"] else 0
-    previous_appointments = Appointment.objects.filter(doctor=doctor.user)
+    if user.is_superuser:
+        previous_appointments = Appointment.objects.filter(doctor=doctor.user, visited=True)
+    else:
+        previous_appointments = Appointment.objects.filter(doctor=doctor.user, user=user, visited=True)
     return render(
         request,
         "home/doctor_single.html",
@@ -730,6 +734,12 @@ def predict_doctor_symptom(request):
     available_times = [
         f"{date.today() + timedelta(days=i)}" for i in range(1, 8)
     ]
+
+    for time in available_times:
+        if Appointment.objects.filter(
+            doctor=doctor, appointment_time__date=time
+        ).count() >= 5:
+            available_times.remove(time)
 
     print("Available times: ", available_times)
     print("Doctor details: ", doctor_details)
